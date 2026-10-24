@@ -1,0 +1,34 @@
+:root {
+  color-scheme: light;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #34372f;
+  background: #eeeae2;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: inherit; }
+a:focus-visible { outline: 2px solid #9b5139; outline-offset: 5px; }
+.page { max-width: 1060px; margin: auto; padding: 0 32px; }
+header, footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+header { min-height: 96px; border-bottom: 1px solid #d0cbbf; }
+.brand { font: italic 39px Georgia, serif; letter-spacing: -2px; text-decoration: none; }
+.brand span { color: #9b5139; }
+header>span { color: #626657; font-size: 13px; }
+main { padding: 72px 0 88px; }
+.eyebrow { font-size: 13px; color: #626657; }
+h1 { font: 400 clamp(36px,5vw,58px)/1.12 Georgia, serif; letter-spacing: -1.5px; margin: 24px 0; }
+h1 em { color: #505d46; }
+main>p:not(.eyebrow) { color: #616653; font-size: 16px; line-height: 1.8; }
+.button { display: inline-flex; align-items: center; gap: 30px; min-height: 50px; margin-top: 22px; padding: 14px 20px; border-radius: 4px; background: #505d46; color: #faf8f2; text-decoration: none; font-size: 14px; }
+.button:hover { background: #424d39; }
+footer { border-top: 1px solid #d0cbbf; padding: 20px 0; color: #626657; font-size: 12px; }
+footer a { padding: 12px 0; text-underline-offset: 4px; }
+
+@media (max-width: 540px) {
+  .page { padding: 0 22px; }
+  header { min-height: 80px; }
+  header>span { max-width: 130px; font-size: 12px; text-align: right; line-height: 1.5; }
+  main { padding: 48px 0 64px; }
+  footer { align-items: flex-start; font-size: 11px; }
+}
