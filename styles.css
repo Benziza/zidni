@@ -115,3 +115,10 @@ main { padding-top: 42px; }
   .reader-toolbar button { font-size: 11px; }
   .quiet-reading #article { padding: 24px; }
 }
+
+.daily-card { margin-top: 30px; padding-top: 15px; border-top: 1px solid #d0cbbf; }
+.daily-card h2 { font-size: 23px; line-height: 1.4; }
+.daily-progress { display: flex; align-items: center; gap: 12px; color: #626657; font-size: 12px; }
+#progress-dots { display: flex; gap: 6px; }
+#progress-dots i { width: 10px; height: 10px; border: 1px solid #818c71; border-radius: 50%; }
+#progress-dots i.filled { background: #818c71; }
