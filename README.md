@@ -30,3 +30,5 @@ Some excerpts include a Wikipedia thumbnail. Follow its image details link to ch
 Interface text is kept in locales.js. The app opens in English by default.
 
 Choose English, French, Arabic, or Moroccan Darija in the language menu. The choice changes the interface and the language of the next Wikipedia article. Articles already open keep their original language. The menu supports arrow keys, Home, End, Escape, and Tab.
+
+The landing page includes a description, social metadata, structured app information, and readable help content before JavaScript runs. Random excerpts are excluded from search snippets. A production canonical URL and sitemap are added only when a public domain is configured.
