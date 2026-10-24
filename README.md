@@ -23,3 +23,5 @@ Use **Keep** to save a page in your notebook. The three most recent pages appear
 Search the notebook by title or excerpt. **Export notebook** downloads all saved pages, including their source links, as a text file.
 
 Use **A− / A+** to choose a text size between 16 and 24 pixels. The size is remembered. **Quiet reading** hides the surrounding controls; press Escape to leave it. Space opens another random page when you are not using an input or button.
+
+The daily counter marks three different discoveries each day, using your local date. Opening a page from history does not increase it. You can keep reading after three pages.

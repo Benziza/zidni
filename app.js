@@ -4,10 +4,13 @@ const $ = (id) => document.getElementById(id);
 let current = null;
 let busy = false;
 const storageKey = 'zidni.v1';
-let state = { history: [], saved: [], fontSize: 18 };
+let state = { history: [], saved: [], fontSize: 18, daily: {} };
 try {
   const stored = JSON.parse(localStorage.getItem(storageKey));
   if ([16,18,20,22,24].includes(stored?.fontSize)) state.fontSize = stored.fontSize;
+  if (stored?.daily && typeof stored.daily === 'object' && !Array.isArray(stored.daily)) {
+    state.daily = Object.fromEntries(Object.entries(stored.daily).filter(([day, keys]) => /^\d{4}-\d{2}-\d{2}$/.test(day) && Array.isArray(keys)).sort(([a], [b]) => b.localeCompare(a)).slice(0, 30));
+  }
   for (const name of ['history', 'saved']) {
     if (Array.isArray(stored?.[name])) state[name] = stored[name].filter(validArticle).slice(0, name === 'history' ? 60 : 500);
   }
@@ -86,6 +89,17 @@ function localDay() {
   const date = new Date();
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
+function renderDaily() {
+  const count = Math.min(3, new Set(state.daily[localDay()] || []).size);
+  $('daily-count').textContent = count + ' / 3 today' + (count === 3 ? ' ✓' : '');
+  [...$('progress-dots').children].forEach((dot, index) => dot.classList.toggle('filled', index < count));
+}
+function countDiscovery(article) {
+  const day = localDay();
+  state.daily[day] = [...new Set([...(state.daily[day] || []), articleKey(article)])].slice(0, 60);
+  state.daily = Object.fromEntries(Object.entries(state.daily).sort(([a], [b]) => b.localeCompare(a)).slice(0, 30));
+  renderDaily();
+}
 function exportNotebook() {
   if (!state.saved.length) return;
   const text = ['MY ZIDNI NOTEBOOK', `Exported on ${localDay()}`, '', ...state.saved.flatMap((article) => [
@@ -149,6 +163,7 @@ async function discover() {
       url: `https://en.wikipedia.org/?curid=${page.pageid}`
     };
     state.history = [article, ...state.history.filter((item) => articleKey(item) !== articleKey(article))].slice(0, 60);
+    countDiscovery(article);
     persist();
     showArticle(article);
     $('announcement').textContent = `New discovery: ${article.title}.`;
@@ -198,3 +213,6 @@ document.addEventListener('keydown', (event) => {
 document.querySelector('.brand').addEventListener('click', (event) => { event.preventDefault(); showView(false); });
 renderNotebook();
 applyTextSize();
+
+renderDaily();
+window.addEventListener('focus', renderDaily);
