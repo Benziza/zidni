@@ -124,6 +124,15 @@ function showArticle(article) {
     return paragraph;
   }));
   if (!article.extract) $('article-extract').textContent = 'No summary is available. Read the full article on Wikipedia.';
+  const image = $('article-image');
+  $('article-figure').hidden = true;
+  image.removeAttribute('src');
+  if (typeof article.image === 'string' && /^https:\/\/(upload|thumb)\.wikimedia\.org\//.test(article.image) && Number.isInteger(article.imageWidth) && Number.isInteger(article.imageHeight) && article.imageWidth > 0 && article.imageHeight > 0) {
+    image.width = article.imageWidth; image.height = article.imageHeight;
+    image.src = article.image;
+    $('image-source').href = article.url;
+    $('article-figure').hidden = false;
+  }
   $('article-link').href = article.url;
   $('reading-time').textContent = `Excerpt · ${Math.max(1, Math.ceil(article.extract.split(/\s+/).length / 200))} min`;
   $('discover').firstChild.textContent = 'Another page ';
@@ -145,8 +154,8 @@ async function discover() {
     const params = new URLSearchParams({
       action: 'query', format: 'json', formatversion: '2', origin: '*',
       generator: 'random', grnnamespace: '0', grnlimit: '5',
-      prop: 'extracts|info|pageprops', inprop: 'url', exintro: '1',
-      explaintext: '1', exchars: '1200', ppprop: 'disambiguation'
+      prop: 'extracts|info|pageprops|pageimages', inprop: 'url', exintro: '1',
+      piprop: 'thumbnail', pithumbsize: '650', explaintext: '1', exchars: '1200', ppprop: 'disambiguation'
     });
     const response = await fetch(`https://en.wikipedia.org/w/api.php?${params}`, {
       signal: controller.signal, credentials: 'omit'
@@ -160,7 +169,8 @@ async function discover() {
     if (!page) throw new Error('No article found');
     const article = {
       id: page.pageid, lang: 'en', title: page.title, extract: page.extract || '',
-      url: `https://en.wikipedia.org/?curid=${page.pageid}`
+      url: `https://en.wikipedia.org/?curid=${page.pageid}`, image: page.thumbnail?.source || '',
+      imageWidth: page.thumbnail?.width, imageHeight: page.thumbnail?.height
     };
     state.history = [article, ...state.history.filter((item) => articleKey(item) !== articleKey(article))].slice(0, 60);
     countDiscovery(article);
@@ -216,3 +226,6 @@ applyTextSize();
 
 renderDaily();
 window.addEventListener('focus', renderDaily);
+
+$('article-image').addEventListener('error', () => { $('article-figure').hidden = true; });
+
