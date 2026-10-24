@@ -126,3 +126,4 @@ main { padding-top: 42px; }
 #article-figure { margin: 0 0 24px; }
 #article-image { display: block; max-width: 100%; height: auto; max-height: 290px; object-fit: contain; object-position: left; }
 figcaption { font-size: 11px; line-height: 1.6; color: #626657; margin-top: 9px; }
+.intro>p, .empty p, .daily-card h2, #history-list>.muted { white-space: pre-line; }

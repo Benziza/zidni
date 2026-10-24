@@ -4,9 +4,10 @@ const $ = (id) => document.getElementById(id);
 let current = null;
 let busy = false;
 const storageKey = 'zidni.v1';
-let state = { history: [], saved: [], fontSize: 18, daily: {} };
+let state = { history: [], saved: [], fontSize: 18, daily: {}, language: 'en' };
 try {
   const stored = JSON.parse(localStorage.getItem(storageKey));
+  if (LANGUAGES[stored?.language]) state.language = stored.language;
   if ([16,18,20,22,24].includes(stored?.fontSize)) state.fontSize = stored.fontSize;
   if (stored?.daily && typeof stored.daily === 'object' && !Array.isArray(stored.daily)) {
     state.daily = Object.fromEntries(Object.entries(stored.daily).filter(([day, keys]) => /^\d{4}-\d{2}-\d{2}$/.test(day) && Array.isArray(keys)).sort(([a], [b]) => b.localeCompare(a)).slice(0, 30));
@@ -17,15 +18,15 @@ try {
 } catch { /* Start with an empty notebook if storage is unavailable. */ }
 
 function validArticle(article) {
-  return article && article.lang === 'en' && Number.isInteger(article.id) &&
+  return article && LANGUAGES[article.lang] && Number.isInteger(article.id) &&
     typeof article.title === 'string' && typeof article.extract === 'string' &&
-    typeof article.url === 'string' && article.url.startsWith('https://en.wikipedia.org/');
+    typeof article.url === 'string' && article.url.startsWith(`https://${article.lang}.wikipedia.org/`);
 }
 function articleKey(article) { return `${article.lang}:${article.id}`; }
 function isSaved(article) { return state.saved.some((item) => articleKey(item) === articleKey(article)); }
 function persist() {
   try { localStorage.setItem(storageKey, JSON.stringify(state)); }
-  catch { notify('Storage is unavailable. Your notebook will last for this visit.'); }
+  catch { notify(t('storage')); }
 }
 let toastTimer;
 function notify(message) {
@@ -44,7 +45,7 @@ function showView(saved) {
 function toggleSave(article) {
   if (isSaved(article)) state.saved = state.saved.filter((item) => articleKey(item) !== articleKey(article));
   else {
-    if (state.saved.length >= 500) { notify('Your notebook is full. Remove a page to make room.'); return; }
+    if (state.saved.length >= 500) { notify(t('full')); return; }
     state.saved.unshift(article);
   }
   persist();
@@ -54,13 +55,13 @@ function renderNotebook() {
   $('saved-count').textContent = state.saved.length;
   $('export-notebook').disabled = !state.saved.length;
   if (current) {
-    $('save-current').textContent = isSaved(current) ? 'Saved' : 'Keep';
+    $('save-current').textContent = t(isSaved(current) ? 'kept' : 'save');
     $('save-current').setAttribute('aria-pressed', String(isSaved(current)));
   }
   if (state.history.length) {
     $('history-list').replaceChildren(...state.history.slice(0, 3).map((article) => {
       const button = document.createElement('button');
-      button.className = 'history-link'; button.textContent = article.title;
+      button.className = 'history-link'; button.textContent = article.title; button.lang = article.lang; button.dir = isRtl(article.lang) ? 'rtl' : 'ltr';
       button.addEventListener('click', () => { showView(false); showArticle(article); });
       return button;
     }));
@@ -68,18 +69,18 @@ function renderNotebook() {
   const query = foldSearch($('notebook-search').value.trim());
   const cards = state.saved.filter((article) => foldSearch(article.title + ' ' + article.extract).includes(query)).map((article) => {
     const card = document.createElement('article'); card.className = 'notebook-card';
-    const title = document.createElement('h2'); title.textContent = article.title;
-    const excerpt = document.createElement('p'); excerpt.textContent = article.extract.slice(0, 190) + (article.extract.length > 190 ? '…' : '');
-    const link = document.createElement('a'); link.textContent = 'Keep reading ↗'; link.href = article.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
-    const remove = document.createElement('button'); remove.textContent = 'Remove';
-    remove.setAttribute('aria-label', `Remove ${article.title} from my notebook`);
+    const title = document.createElement('h2'); title.textContent = article.title; title.lang = article.lang; title.dir = isRtl(article.lang) ? 'rtl' : 'ltr';
+    const excerpt = document.createElement('p'); excerpt.lang = article.lang; excerpt.dir = isRtl(article.lang) ? 'rtl' : 'ltr'; excerpt.textContent = article.extract.slice(0, 190) + (article.extract.length > 190 ? '…' : '');
+    const link = document.createElement('a'); link.textContent = t('resume'); link.href = article.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+    const remove = document.createElement('button'); remove.textContent = t('remove');
+    remove.setAttribute('aria-label', t('removePage', { title: article.title }));
     remove.addEventListener('click', () => toggleSave(article));
     card.append(title, excerpt, link, remove);
     return card;
   });
   if (!cards.length) {
     const empty = document.createElement('p'); empty.className = 'muted';
-    empty.textContent = query ? 'No pages match that search. Try another word.' : 'Use Keep to save an article here.';
+    empty.textContent = query ? t('noMatch') + ' ' + t('trySearch') : t('emptySaved');
     cards.push(empty);
   }
   $('saved-list').replaceChildren(...cards);
@@ -91,7 +92,7 @@ function localDay() {
 }
 function renderDaily() {
   const count = Math.min(3, new Set(state.daily[localDay()] || []).size);
-  $('daily-count').textContent = count + ' / 3 today' + (count === 3 ? ' ✓' : '');
+  $('daily-count').textContent = t('today', { count }) + (count === 3 ? ' ✓' : '');
   [...$('progress-dots').children].forEach((dot, index) => dot.classList.toggle('filled', index < count));
 }
 function countDiscovery(article) {
@@ -102,19 +103,21 @@ function countDiscovery(article) {
 }
 function exportNotebook() {
   if (!state.saved.length) return;
-  const text = ['MY ZIDNI NOTEBOOK', `Exported on ${localDay()}`, '', ...state.saved.flatMap((article) => [
-    article.title, article.url, article.extract, 'Source: Wikipedia — CC BY-SA 4.0', '', '—', ''
+  const text = [t('exportTitle'), t('exportDate', { date: localDay() }), '', ...state.saved.flatMap((article) => [
+    article.title, article.url, article.extract, t('exportCredit'), '', '—', ''
   ])].join('\n');
   const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
   const link = document.createElement('a');
   link.href = url; link.download = `zidni-notebook-${localDay()}.txt`;
   document.body.append(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  notify('Your notebook has been exported.');
+  notify(t('exported'));
 }
 
 function showArticle(article) {
   current = article;
+  $('article-language').textContent = 'Wikipedia · ' + LANGUAGES[article.lang];
+  for (const id of ['article-title', 'article-extract']) { $(id).lang = article.lang; $(id).dir = isRtl(article.lang) ? 'rtl' : 'ltr'; }
   $('empty').hidden = true;
   $('article').hidden = false;
   $('article-title').textContent = article.title;
@@ -123,7 +126,7 @@ function showArticle(article) {
     paragraph.textContent = text;
     return paragraph;
   }));
-  if (!article.extract) $('article-extract').textContent = 'No summary is available. Read the full article on Wikipedia.';
+  if (!article.extract) $('article-extract').textContent = t('noExtract');
   const image = $('article-image');
   $('article-figure').hidden = true;
   image.removeAttribute('src');
@@ -134,8 +137,8 @@ function showArticle(article) {
     $('article-figure').hidden = false;
   }
   $('article-link').href = article.url;
-  $('reading-time').textContent = `Excerpt · ${Math.max(1, Math.ceil(article.extract.split(/\s+/).length / 200))} min`;
-  $('discover').firstChild.textContent = 'Another page ';
+  $('reading-time').textContent = t('excerpt', { count: Math.max(1, Math.ceil(article.extract.split(/\s+/).length / 200)) });
+  $('discover-label').textContent = t('another');
   $('article-title').focus({ preventScroll: true });
   renderNotebook();
 }
@@ -147,6 +150,7 @@ async function discover() {
   $('discovery').setAttribute('aria-busy', 'true');
   $('loading').hidden = false;
   $('error').hidden = true;
+  const language = state.language;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 18000);
 
@@ -157,30 +161,31 @@ async function discover() {
       prop: 'extracts|info|pageprops|pageimages', inprop: 'url', exintro: '1',
       piprop: 'thumbnail', pithumbsize: '650', explaintext: '1', exchars: '1200', ppprop: 'disambiguation'
     });
-    const response = await fetch(`https://en.wikipedia.org/w/api.php?${params}`, {
+    const response = await fetch(`https://${language}.wikipedia.org/w/api.php?${params}`, {
       signal: controller.signal, credentials: 'omit'
     });
     if (!response.ok) throw new Error('Wikipedia request failed');
     const data = await response.json();
     const pages = (data.query?.pages || []).filter((page) => page.pageid > 0 && page.ns === 0 && !page.missing && !Object.hasOwn(page.pageprops || {}, 'disambiguation'));
-    const unseen = pages.filter((page) => !state.history.some((item) => item.id === page.pageid));
+    const unseen = pages.filter((page) => !state.history.some((item) => item.lang === language && item.id === page.pageid));
     const pool = unseen.length ? unseen : pages;
     const page = pool.find((item) => item.extract?.length > 100) || pool[0];
     if (!page) throw new Error('No article found');
     const article = {
-      id: page.pageid, lang: 'en', title: page.title, extract: page.extract || '',
-      url: `https://en.wikipedia.org/?curid=${page.pageid}`, image: page.thumbnail?.source || '',
+      id: page.pageid, lang: language, title: page.title, extract: page.extract || '',
+      url: `https://${language}.wikipedia.org/?curid=${page.pageid}`, image: page.thumbnail?.source || '',
       imageWidth: page.thumbnail?.width, imageHeight: page.thumbnail?.height
     };
     state.history = [article, ...state.history.filter((item) => articleKey(item) !== articleKey(article))].slice(0, 60);
     countDiscovery(article);
     persist();
     showArticle(article);
-    $('announcement').textContent = `New discovery: ${article.title}.`;
+    $('announcement').textContent = t('found', { title: article.title });
   } catch (error) {
     $('error').textContent = error.name === 'AbortError'
-      ? 'Wikipedia is taking a while. Try again in a moment.'
-      : 'Could not reach Wikipedia. Check your connection and try again.';
+      ? t('timeout')
+      : t('offline');
+    $('error').dataset.kind = error.name === 'AbortError' ? 'timeout' : 'offline';
     $('error').hidden = false;
   } finally {
     clearTimeout(timeout);
@@ -206,7 +211,7 @@ function applyTextSize() {
 function setQuietReading(enabled) {
   document.body.classList.toggle('quiet-reading', enabled);
   $('quiet-reading').setAttribute('aria-pressed', String(enabled));
-  $('quiet-reading').textContent = enabled ? 'Exit reading mode' : 'Quiet reading';
+  $('quiet-reading').textContent = t(enabled ? 'exitCalm' : 'calm');
   if (enabled) $('discovery').scrollIntoView({ block: 'start' });
 }
 $('font-smaller').addEventListener('click', () => { state.fontSize = Math.max(16, state.fontSize - 2); applyTextSize(); persist(); });
@@ -221,7 +226,7 @@ document.addEventListener('keydown', (event) => {
   }
 });
 document.querySelector('.brand').addEventListener('click', (event) => { event.preventDefault(); showView(false); });
-renderNotebook();
+applyLanguage();
 applyTextSize();
 
 renderDaily();

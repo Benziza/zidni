@@ -7,6 +7,8 @@
   <title>Zidni — A random Wikipedia article</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css">
+  <script src="locales.js" defer></script>
+  <script src="language.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -14,7 +16,7 @@
     <header>
       <a class="brand" href="/" aria-label="Zidni home">zidni<span>.</span></a>
       <span>A little cabinet of curiosities.</span>
-      <nav aria-label="Main navigation"><button id="nav-explore" aria-current="page">At random</button><button id="nav-saved">My notebook <span id="saved-count">0</span></button></nav>
+      <nav aria-label="Main navigation"><button id="nav-explore" aria-current="page">At random</button><button id="nav-saved"><span id="saved-label">My notebook</span> <span id="saved-count">0</span></button></nav>
     </header>
     <main>
       <section id="explore-view">
@@ -22,7 +24,7 @@
       <p class="eyebrow">A few minutes elsewhere</p>
       <h1>A Wikipedia article,<br><em>at random.</em></h1>
       <p>Something to read. Something you might remember.<br>Leave the first page to chance.</p>
-      <button class="button" id="discover" type="button">A random page <span aria-hidden="true">↗</span></button>
+      <button class="button" id="discover" type="button"><span id="discover-label">A random page</span> <span aria-hidden="true">↗</span></button>
       </div>
       <p id="error" class="error" role="alert" hidden></p>
       <noscript><p><a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer">Open a random article on Wikipedia</a></p></noscript>
@@ -40,8 +42,8 @@
           <h2 id="article-title" tabindex="-1"></h2>
           <figure id="article-figure" hidden><img id="article-image" alt="" decoding="async" referrerpolicy="no-referrer"><figcaption><a id="image-source" target="_blank" rel="noopener noreferrer">Image details and license on Wikipedia ↗</a></figcaption></figure>
           <div id="article-extract" class="article-extract"></div>
-          <div class="article-actions"><a id="article-link" target="_blank" rel="noopener noreferrer">Continue on Wikipedia ↗</a><button id="save-current" type="button" aria-pressed="false">Keep</button></div>
-          <p class="credit">Text from Wikipedia · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA</a></p>
+          <div class="article-actions"><a id="article-link" target="_blank" rel="noopener noreferrer"><span id="article-link-label">Continue on Wikipedia ↗</span></a><button id="save-current" type="button" aria-pressed="false">Keep</button></div>
+          <p class="credit"><span id="credit-label">Text from Wikipedia</span> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA</a></p>
         </article>
       </section>
       <aside aria-labelledby="recent-title"><h2 id="recent-title">Recently opened</h2><div id="history-list"><p class="muted">Pages come and go. Their traces stay here.</p></div><section class="daily-card"><p class="eyebrow">A small ritual</p><h2>Three pages.<br>A little further.</h2><div class="daily-progress"><div id="progress-dots" aria-hidden="true"><i></i><i></i><i></i></div><span id="daily-count">0 / 3 today</span></div></section></aside>
