@@ -144,3 +144,7 @@ figcaption { font-size: 11px; line-height: 1.6; color: #626657; margin-top: 9px;
 
 .language-select { width: 160px; margin-top: 12px; margin-inline-start: auto; }
 .quiet-reading .language-select { display: none; }
+
+html[dir=rtl] h1, html[dir=rtl] h2 { letter-spacing: normal; font-family: Tahoma, 'Segoe UI', sans-serif; line-height: 1.6; }
+[lang=ar].article-extract, [lang=ary].article-extract, [lang=ar].history-link, [lang=ary].history-link, .notebook-card [lang=ar], .notebook-card [lang=ary] { font-family: Tahoma, 'Segoe UI', sans-serif; line-height: 1.9; letter-spacing: normal; }
+html[dir=rtl] #article-image { object-position: right; }
