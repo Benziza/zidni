@@ -81,6 +81,10 @@ aside h2 { font-size: 23px; margin: 18px 0; }
 .notebook-card button { margin-inline-start: 20px; }
 .toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #424b39; color: #faf8f2; border-radius: 3px; padding: 13px 20px; opacity: 0; pointer-events: none; max-width: 90vw; font-size: 13px; z-index: 50; }
 .toast.visible { opacity: 1; }
+.notebook-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 0; border-bottom: 1px solid #d0cbbf; }
+.notebook-toolbar input { font: inherit; min-height: 44px; max-width: 340px; min-width: 0; flex: 1; padding: 10px 4px; border: 0; background: transparent; color: #34372f; }
+.notebook-toolbar input:focus-visible { outline: 2px solid #9b5139; outline-offset: 4px; }
+.notebook-toolbar button { min-height: 44px; padding: 10px 0; border: 0; background: transparent; color: #505d46; font-size: 13px; }
 @media (max-width: 760px) {
   header>span { display: none; }
   .reading-layout { grid-template-columns: minmax(0,1fr); gap: 20px; }
@@ -89,4 +93,7 @@ aside h2 { font-size: 23px; margin: 18px 0; }
   nav { gap: 16px; }
   nav button { font-size: 12px; }
   .saved-grid { grid-template-columns: 1fr; }
+  .notebook-toolbar { flex-wrap: wrap; gap: 10px; }
+  .notebook-toolbar input { flex-basis: 100%; max-width: none; }
+  .notebook-toolbar button { margin-inline-start: auto; }
 }

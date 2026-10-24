@@ -47,6 +47,7 @@ function toggleSave(article) {
 }
 function renderNotebook() {
   $('saved-count').textContent = state.saved.length;
+  $('export-notebook').disabled = !state.saved.length;
   if (current) {
     $('save-current').textContent = isSaved(current) ? 'Saved' : 'Keep';
     $('save-current').setAttribute('aria-pressed', String(isSaved(current)));
@@ -59,7 +60,8 @@ function renderNotebook() {
       return button;
     }));
   }
-  const cards = state.saved.map((article) => {
+  const query = foldSearch($('notebook-search').value.trim());
+  const cards = state.saved.filter((article) => foldSearch(article.title + ' ' + article.extract).includes(query)).map((article) => {
     const card = document.createElement('article'); card.className = 'notebook-card';
     const title = document.createElement('h2'); title.textContent = article.title;
     const excerpt = document.createElement('p'); excerpt.textContent = article.extract.slice(0, 190) + (article.extract.length > 190 ? '…' : '');
@@ -72,9 +74,27 @@ function renderNotebook() {
   });
   if (!cards.length) {
     const empty = document.createElement('p'); empty.className = 'muted';
-    empty.textContent = 'Use Keep to save an article here.'; cards.push(empty);
+    empty.textContent = query ? 'No pages match that search. Try another word.' : 'Use Keep to save an article here.';
+    cards.push(empty);
   }
   $('saved-list').replaceChildren(...cards);
+}
+function foldSearch(text) { return text.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase(); }
+function localDay() {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+function exportNotebook() {
+  if (!state.saved.length) return;
+  const text = ['MY ZIDNI NOTEBOOK', `Exported on ${localDay()}`, '', ...state.saved.flatMap((article) => [
+    article.title, article.url, article.extract, 'Source: Wikipedia — CC BY-SA 4.0', '', '—', ''
+  ])].join('\n');
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url; link.download = `zidni-notebook-${localDay()}.txt`;
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  notify('Your notebook has been exported.');
 }
 
 function showArticle(article) {
@@ -148,5 +168,7 @@ $('discover').addEventListener('click', discover);
 $('save-current').addEventListener('click', () => { if (current) toggleSave(current); });
 $('nav-explore').addEventListener('click', () => showView(false));
 $('nav-saved').addEventListener('click', () => showView(true));
+$('notebook-search').addEventListener('input', renderNotebook);
+$('export-notebook').addEventListener('click', exportNotebook);
 document.querySelector('.brand').addEventListener('click', (event) => { event.preventDefault(); showView(false); });
 renderNotebook();
