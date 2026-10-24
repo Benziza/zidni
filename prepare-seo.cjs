@@ -7,12 +7,12 @@ let site;
 try { site = new URL(process.argv[2]); }
 catch { console.error('Usage: npm run prepare:seo -- https://your-domain.tld'); process.exit(1); }
 if (site.protocol !== 'https:' || site.username || site.password || site.port ||
-    site.pathname !== '/' || site.search || site.hash || isIP(site.hostname) ||
+    !/^\/[A-Za-z0-9/_-]*$/.test(site.pathname) || site.search || site.hash || isIP(site.hostname) ||
     !site.hostname.includes('.') || /(^localhost$|\.(localhost|local|invalid|test)$)/.test(site.hostname)) {
-  console.error('Use a public HTTPS domain without a port, path, credentials, query, or fragment.');
+  console.error('Use a public HTTPS site URL without a port, credentials, query, or fragment.');
   process.exit(1);
 }
-const base = site.origin + '/';
+const base = site.origin + (site.pathname.endsWith('/') ? site.pathname : site.pathname + '/');
 const escape = (value) => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 const indexPath = path.join(__dirname, 'index.html');
 const html = fs.readFileSync(indexPath, 'utf8');
