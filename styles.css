@@ -122,3 +122,7 @@ main { padding-top: 42px; }
 #progress-dots { display: flex; gap: 6px; }
 #progress-dots i { width: 10px; height: 10px; border: 1px solid #818c71; border-radius: 50%; }
 #progress-dots i.filled { background: #818c71; }
+
+#article-figure { margin: 0 0 24px; }
+#article-image { display: block; max-width: 100%; height: auto; max-height: 290px; object-fit: contain; object-position: left; }
+figcaption { font-size: 11px; line-height: 1.6; color: #626657; margin-top: 9px; }
