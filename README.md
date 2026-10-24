@@ -44,3 +44,5 @@ npm run prepare:seo -- https://your-domain.tld
 This updates index.html and robots.txt and creates sitemap.xml. Run it again to change domains. Deploy the generated files with the site. The server stays on the local loopback address; use static hosting or configure your hosting service separately. Search visibility depends on publication and indexing, and no ranking is guaranteed.
 
 The social preview is social-card.png (1200 × 630). Its editable source is social-card.svg.
+
+The local server supports Brotli and gzip for text files, conditional requests with ETags, and HEAD requests. Unknown files return 404, unsupported methods return 405, and /index.html redirects to /.
