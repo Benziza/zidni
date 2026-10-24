@@ -7,6 +7,7 @@
   <title>Zidni — A random Wikipedia article</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
 </head>
 <body>
   <div class="page">
@@ -18,12 +19,30 @@
       <p class="eyebrow">A few minutes elsewhere</p>
       <h1>A Wikipedia article,<br><em>at random.</em></h1>
       <p>Something to read. Something you might remember.<br>Leave the first page to chance.</p>
-      <a class="button" href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer">Open a random article <span aria-hidden="true">↗</span></a>
+      <button class="button" id="discover" type="button">A random page <span aria-hidden="true">↗</span></button>
+      <p id="error" class="error" role="alert" hidden></p>
+      <noscript><p><a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer">Open a random article on Wikipedia</a></p></noscript>
+      <section id="discovery" class="paper" aria-label="Your next discovery" aria-busy="false">
+        <div class="paper-heading">The pages we would never have looked for.</div>
+        <div id="empty" class="empty">
+          <h2>Hang on,<br><em>what’s that?</em></h2>
+          <p>That’s often how it starts.<br>One page, then another.</p>
+        </div>
+        <p id="loading" class="loading" role="status" hidden>Leafing through Wikipedia…</p>
+        <article id="article" hidden>
+          <div class="article-meta"><span id="article-language">Wikipedia · English</span><span id="reading-time"></span></div>
+          <h2 id="article-title" tabindex="-1"></h2>
+          <div id="article-extract" class="article-extract"></div>
+          <div class="article-actions"><a id="article-link" target="_blank" rel="noopener noreferrer">Continue on Wikipedia ↗</a></div>
+          <p class="credit">Text from Wikipedia · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA</a></p>
+        </article>
+      </section>
     </main>
     <footer>
       <span>Read a little. Keep what you like.</span>
       <a href="https://www.wikipedia.org/" target="_blank" rel="noopener noreferrer">Thanks, Wikipedia.</a>
     </footer>
   </div>
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>

@@ -5,7 +5,8 @@ const path = require('node:path');
 const port = Number(process.env.PORT) || 4173;
 const files = {
   '/': ['index.html', 'text/html; charset=utf-8'],
-  '/styles.css': ['styles.css', 'text/css; charset=utf-8']
+  '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
+  '/app.js': ['app.js', 'text/javascript; charset=utf-8']
 };
 
 const server = http.createServer(async (request, response) => {

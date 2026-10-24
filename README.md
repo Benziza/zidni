@@ -16,4 +16,4 @@ Open http://localhost:4173. To use a different port, set `PORT` before starting 
 npm run check
 ```
 
-The first version opens an English article on Wikipedia. Article previews, a notebook and language options will follow in separate changes.
+Click **A random page** to read an English Wikipedia excerpt. The source link opens the full article. An internet connection is needed to load articles.
