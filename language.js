@@ -11,6 +11,11 @@ function applyLanguage() {
   document.documentElement.lang = state.language;
   document.documentElement.dir = isRtl(state.language) ? 'rtl' : 'ltr';
   document.title = t('docTitle');
+  document.querySelectorAll('meta[property="og:title"],meta[name="twitter:title"]').forEach((node) => { node.content = t('docTitle'); });
+  for (let i = 1; i <= 4; i++) {
+    document.querySelector(`.questions details:nth-child(${i}) summary`).textContent = t('q' + i);
+    document.querySelector(`.questions details:nth-child(${i}) p`).textContent = t('a' + i);
+  }
   const bindings = {
     'header>span': 'tagline', '#nav-explore': 'explore', '#saved-label': 'saved',
     '.intro .eyebrow': 'eyebrow', '.intro>p:last-of-type': 'description',
@@ -19,7 +24,9 @@ function applyLanguage() {
     '#recent-title': 'recent', '.daily-card .eyebrow': 'ritual', '.daily-card h2': 'ritualTitle',
     '#saved-view>.eyebrow': 'savedEyebrow', '#saved-view>h1': 'saved',
     '#saved-view>p:not(.eyebrow)': 'collectionDescription', '#export-notebook': 'export',
-    'footer>span': 'footer', 'footer>a': 'thanks', '#image-source': 'imageCredit'
+    '.skip-link': 'skip', '.how-it-works .eyebrow': 'howEyebrow', '#how-title': 'howTitle',
+    '.how-description': 'howDescription', '#how-link': 'howLink',
+    'footer>span': 'footer', 'footer>a:last-child': 'thanks', '#image-source': 'imageCredit'
   };
   for (const [selector, name] of Object.entries(bindings)) {
     document.querySelectorAll(selector).forEach((node) => { node.textContent = t(name); });
