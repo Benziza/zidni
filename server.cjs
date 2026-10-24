@@ -8,6 +8,8 @@ const files = {
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
   '/locales.js': ['locales.js', 'text/javascript; charset=utf-8'],
   '/language.js': ['language.js', 'text/javascript; charset=utf-8'],
+  '/sitemap.xml': ['sitemap.xml', 'application/xml; charset=utf-8'],
+  '/social-card.png': ['social-card.png', 'image/png'],
   '/robots.txt': ['robots.txt', 'text/plain; charset=utf-8'],
   '/app.js': ['app.js', 'text/javascript; charset=utf-8']
 };
@@ -36,9 +38,9 @@ const server = http.createServer(async (request, response) => {
       'X-Content-Type-Options': 'nosniff'
     });
     response.end(request.method === 'HEAD' ? undefined : content);
-  } catch {
-    response.writeHead(500);
-    response.end('Could not load the page');
+  } catch (error) {
+    response.writeHead(error.code === 'ENOENT' ? 404 : 500);
+    response.end(error.code === 'ENOENT' ? 'Not found' : 'Could not load the page');
   }
 });
 
