@@ -1,6 +1,5 @@
 'use strict';
 
-const $ = (id) => document.getElementById(id);
 let current = null;
 let busy = false;
 const storageKey = 'zidni.v1';
@@ -147,6 +146,8 @@ async function discover() {
   if (busy) return;
   busy = true;
   $('discover').disabled = true;
+  $('language').disabled = true;
+  closeLanguageMenu();
   $('discovery').setAttribute('aria-busy', 'true');
   $('loading').hidden = false;
   $('error').hidden = true;
@@ -191,6 +192,7 @@ async function discover() {
     clearTimeout(timeout);
     busy = false;
     $('discover').disabled = false;
+    $('language').disabled = false;
     $('loading').hidden = true;
     $('discovery').setAttribute('aria-busy', 'false');
   }

@@ -127,3 +127,20 @@ main { padding-top: 42px; }
 #article-image { display: block; max-width: 100%; height: auto; max-height: 290px; object-fit: contain; object-position: left; }
 figcaption { font-size: 11px; line-height: 1.6; color: #626657; margin-top: 9px; }
 .intro>p, .empty p, .daily-card h2, #history-list>.muted { white-space: pre-line; }
+
+.language-select { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 142px; }
+.language-select>#language-label { display: block; margin: 0; font-size: 11px; line-height: 1.4; color: #626657; }
+.language-trigger { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid #c5c4b6; border-radius: 4px; background: #faf8f2; color: #34372f; font-size: 13px; text-align: start; }
+.language-trigger:hover, .language-trigger[aria-expanded=true] { border-color: #505d46; }
+.language-trigger svg { width: 14px; height: 14px; flex-shrink: 0; transition: transform .15s; }
+.language-trigger[aria-expanded=true] svg { transform: rotate(180deg); }
+.language-menu { position: absolute; inset-inline-start: 0; top: calc(100% + 7px); min-width: 184px; padding: 5px; border: 1px solid #c5c4b6; border-radius: 5px; background: #faf8f2; box-shadow: 0 7px 20px #34372f18; z-index: 30; }
+.language-menu button { display: flex; align-items: center; justify-content: space-between; gap: 28px; width: 100%; min-height: 44px; padding: 10px 12px; background: transparent; border: 0; border-radius: 3px; font-size: 14px; color: #34372f; text-align: start; }
+.language-menu button:hover, .language-menu button:focus-visible { background: #e9ecdf; }
+.language-menu button:focus-visible { outline: 2px solid #505d46; outline-offset: -2px; }
+.language-menu button[aria-checked=true] { background: #e9ecdf; color: #3f4b35; }
+.language-check { visibility: hidden; color: #505d46; }
+.language-menu button[aria-checked=true] .language-check { visibility: visible; }
+
+.language-select { width: 160px; margin-top: 12px; margin-inline-start: auto; }
+.quiet-reading .language-select { display: none; }
