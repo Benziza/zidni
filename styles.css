@@ -85,6 +85,21 @@ aside h2 { font-size: 23px; margin: 18px 0; }
 .notebook-toolbar input { font: inherit; min-height: 44px; max-width: 340px; min-width: 0; flex: 1; padding: 10px 4px; border: 0; background: transparent; color: #34372f; }
 .notebook-toolbar input:focus-visible { outline: 2px solid #9b5139; outline-offset: 4px; }
 .notebook-toolbar button { min-height: 44px; padding: 10px 0; border: 0; background: transparent; color: #505d46; font-size: 13px; }
+.intro { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 30px; }
+.intro>.button { grid-column: 2; grid-row: 1 / 4; align-self: center; }
+.intro>p:not(.eyebrow) { color: #616653; font-size: 16px; line-height: 1.8; }
+main { padding-top: 42px; }
+.article-extract { font-size: var(--reading-size,18px); }
+.reader-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 8px; border-top: 1px solid #dfdace; }
+.reader-toolbar>div { display: flex; align-items: center; }
+.reader-toolbar button { min-height: 44px; border: 0; background: transparent; color: #505d46; padding: 8px; font-size: 13px; }
+.reader-toolbar>div button { min-width: 44px; font: 16px Georgia, serif; }
+.reader-toolbar button:hover { background: #e9ecdf; }
+.reader-toolbar output { min-width: 34px; font-size: 11px; text-align: center; color: #626657; }
+.quiet-reading .intro, .quiet-reading aside, .quiet-reading footer { display: none; }
+.quiet-reading main { padding-top: 0; }
+.quiet-reading .reading-layout { display: block; max-width: 760px; margin: 28px auto 40px; }
+.quiet-reading #article { padding: 30px 40px; }
 @media (max-width: 760px) {
   header>span { display: none; }
   .reading-layout { grid-template-columns: minmax(0,1fr); gap: 20px; }
@@ -96,4 +111,7 @@ aside h2 { font-size: 23px; margin: 18px 0; }
   .notebook-toolbar { flex-wrap: wrap; gap: 10px; }
   .notebook-toolbar input { flex-basis: 100%; max-width: none; }
   .notebook-toolbar button { margin-inline-start: auto; }
+  .intro { display: block; }
+  .reader-toolbar button { font-size: 11px; }
+  .quiet-reading #article { padding: 24px; }
 }

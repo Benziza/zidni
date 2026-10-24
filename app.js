@@ -4,9 +4,10 @@ const $ = (id) => document.getElementById(id);
 let current = null;
 let busy = false;
 const storageKey = 'zidni.v1';
-let state = { history: [], saved: [] };
+let state = { history: [], saved: [], fontSize: 18 };
 try {
   const stored = JSON.parse(localStorage.getItem(storageKey));
+  if ([16,18,20,22,24].includes(stored?.fontSize)) state.fontSize = stored.fontSize;
   for (const name of ['history', 'saved']) {
     if (Array.isArray(stored?.[name])) state[name] = stored[name].filter(validArticle).slice(0, name === 'history' ? 60 : 500);
   }
@@ -31,6 +32,7 @@ function notify(message) {
   toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 3000);
 }
 function showView(saved) {
+  setQuietReading(false);
   $('explore-view').hidden = saved;
   $('saved-view').hidden = !saved;
   $('nav-explore').setAttribute('aria-current', saved ? 'false' : 'page');
@@ -170,5 +172,29 @@ $('nav-explore').addEventListener('click', () => showView(false));
 $('nav-saved').addEventListener('click', () => showView(true));
 $('notebook-search').addEventListener('input', renderNotebook);
 $('export-notebook').addEventListener('click', exportNotebook);
+function applyTextSize() {
+  document.documentElement.style.setProperty('--reading-size', `${state.fontSize}px`);
+  $('font-size').textContent = `${state.fontSize} px`;
+  $('font-smaller').disabled = state.fontSize <= 16;
+  $('font-larger').disabled = state.fontSize >= 24;
+}
+function setQuietReading(enabled) {
+  document.body.classList.toggle('quiet-reading', enabled);
+  $('quiet-reading').setAttribute('aria-pressed', String(enabled));
+  $('quiet-reading').textContent = enabled ? 'Exit reading mode' : 'Quiet reading';
+  if (enabled) $('discovery').scrollIntoView({ block: 'start' });
+}
+$('font-smaller').addEventListener('click', () => { state.fontSize = Math.max(16, state.fontSize - 2); applyTextSize(); persist(); });
+$('font-larger').addEventListener('click', () => { state.fontSize = Math.min(24, state.fontSize + 2); applyTextSize(); persist(); });
+$('quiet-reading').addEventListener('click', () => setQuietReading(!document.body.classList.contains('quiet-reading')));
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.body.classList.contains('quiet-reading')) {
+    setQuietReading(false); $('quiet-reading').focus(); return;
+  }
+  if (event.code === 'Space' && !event.repeat && !event.ctrlKey && !event.altKey && !event.metaKey && !$('explore-view').hidden && !event.target.closest('input,button,a,select,textarea,[contenteditable=true]')) {
+    event.preventDefault(); discover();
+  }
+});
 document.querySelector('.brand').addEventListener('click', (event) => { event.preventDefault(); showView(false); });
 renderNotebook();
+applyTextSize();

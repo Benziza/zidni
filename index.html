@@ -18,10 +18,12 @@
     </header>
     <main>
       <section id="explore-view">
+      <div class="intro">
       <p class="eyebrow">A few minutes elsewhere</p>
       <h1>A Wikipedia article,<br><em>at random.</em></h1>
       <p>Something to read. Something you might remember.<br>Leave the first page to chance.</p>
       <button class="button" id="discover" type="button">A random page <span aria-hidden="true">↗</span></button>
+      </div>
       <p id="error" class="error" role="alert" hidden></p>
       <noscript><p><a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer">Open a random article on Wikipedia</a></p></noscript>
       <div class="reading-layout">
@@ -34,6 +36,7 @@
         <p id="loading" class="loading" role="status" hidden>Leafing through Wikipedia…</p>
         <article id="article" hidden>
           <div class="article-meta"><span id="article-language">Wikipedia · English</span><span id="reading-time"></span></div>
+          <div class="reader-toolbar"><button id="quiet-reading" type="button" aria-pressed="false">Quiet reading</button><div role="group" aria-label="Text size"><button id="font-smaller" type="button" aria-label="Decrease text size">A−</button><output id="font-size" aria-live="polite">18 px</output><button id="font-larger" type="button" aria-label="Increase text size">A+</button></div></div>
           <h2 id="article-title" tabindex="-1"></h2>
           <div id="article-extract" class="article-extract"></div>
           <div class="article-actions"><a id="article-link" target="_blank" rel="noopener noreferrer">Continue on Wikipedia ↗</a><button id="save-current" type="button" aria-pressed="false">Keep</button></div>
