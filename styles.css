@@ -58,3 +58,35 @@ footer a { padding: 12px 0; text-underline-offset: 4px; }
   main { padding: 48px 0 64px; }
   footer { align-items: flex-start; font-size: 11px; }
 }
+
+nav { display: flex; gap: 24px; margin-inline-start: auto; }
+nav button { border: 0; min-height: 44px; padding: 8px 0; background: transparent; font-size: 14px; color: #626657; }
+nav button[aria-current=page] { text-decoration: underline; text-underline-offset: 8px; text-decoration-color: #9b5139; color: #34372f; }
+#saved-count { font-size: 12px; margin-inline-start: 5px; }
+#saved-count::before { content: '('; } #saved-count::after { content: ')'; }
+.reading-layout { display: grid; grid-template-columns: minmax(0,1fr) 210px; gap: 38px; margin-top: 38px; align-items: start; }
+.reading-layout .paper { margin: 0; min-width: 0; }
+aside h2 { font-size: 23px; margin: 18px 0; }
+.muted { color: #626657; font-size: 14px; line-height: 1.7; }
+.history-link { display: block; text-align: start; width: 100%; border: 0; border-bottom: 1px solid #d0cbbf; background: transparent; padding: 15px 0; font: 17px/1.5 Georgia, serif; color: #34372f; overflow-wrap: anywhere; }
+.history-link:hover { color: #9b5139; }
+.article-actions { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+.article-actions button, .notebook-card button { min-height: 44px; padding: 8px 12px; border: 1px solid #d0cbbf; border-radius: 3px; background: transparent; color: #505d46; font-size: 13px; }
+.article-actions button[aria-pressed=true] { color: #9b5139; border-color: #9b5139; }
+.saved-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 28px; }
+.notebook-card { padding: 20px 0; border-top: 1px solid #d0cbbf; min-width: 0; }
+.notebook-card h2 { font-size: 26px; overflow-wrap: anywhere; }
+.notebook-card p { font: 16px/1.7 Georgia, serif; color: #494e40; }
+.notebook-card a { color: #505d46; font-size: 13px; text-underline-offset: 4px; }
+.notebook-card button { margin-inline-start: 20px; }
+.toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #424b39; color: #faf8f2; border-radius: 3px; padding: 13px 20px; opacity: 0; pointer-events: none; max-width: 90vw; font-size: 13px; z-index: 50; }
+.toast.visible { opacity: 1; }
+@media (max-width: 760px) {
+  header>span { display: none; }
+  .reading-layout { grid-template-columns: minmax(0,1fr); gap: 20px; }
+}
+@media (max-width: 540px) {
+  nav { gap: 16px; }
+  nav button { font-size: 12px; }
+  .saved-grid { grid-template-columns: 1fr; }
+}

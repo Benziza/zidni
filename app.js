@@ -3,6 +3,79 @@
 const $ = (id) => document.getElementById(id);
 let current = null;
 let busy = false;
+const storageKey = 'zidni.v1';
+let state = { history: [], saved: [] };
+try {
+  const stored = JSON.parse(localStorage.getItem(storageKey));
+  for (const name of ['history', 'saved']) {
+    if (Array.isArray(stored?.[name])) state[name] = stored[name].filter(validArticle).slice(0, name === 'history' ? 60 : 500);
+  }
+} catch { /* Start with an empty notebook if storage is unavailable. */ }
+
+function validArticle(article) {
+  return article && article.lang === 'en' && Number.isInteger(article.id) &&
+    typeof article.title === 'string' && typeof article.extract === 'string' &&
+    typeof article.url === 'string' && article.url.startsWith('https://en.wikipedia.org/');
+}
+function articleKey(article) { return `${article.lang}:${article.id}`; }
+function isSaved(article) { return state.saved.some((item) => articleKey(item) === articleKey(article)); }
+function persist() {
+  try { localStorage.setItem(storageKey, JSON.stringify(state)); }
+  catch { notify('Storage is unavailable. Your notebook will last for this visit.'); }
+}
+let toastTimer;
+function notify(message) {
+  $('toast').textContent = message;
+  $('toast').classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 3000);
+}
+function showView(saved) {
+  $('explore-view').hidden = saved;
+  $('saved-view').hidden = !saved;
+  $('nav-explore').setAttribute('aria-current', saved ? 'false' : 'page');
+  $('nav-saved').setAttribute('aria-current', saved ? 'page' : 'false');
+}
+function toggleSave(article) {
+  if (isSaved(article)) state.saved = state.saved.filter((item) => articleKey(item) !== articleKey(article));
+  else {
+    if (state.saved.length >= 500) { notify('Your notebook is full. Remove a page to make room.'); return; }
+    state.saved.unshift(article);
+  }
+  persist();
+  renderNotebook();
+}
+function renderNotebook() {
+  $('saved-count').textContent = state.saved.length;
+  if (current) {
+    $('save-current').textContent = isSaved(current) ? 'Saved' : 'Keep';
+    $('save-current').setAttribute('aria-pressed', String(isSaved(current)));
+  }
+  if (state.history.length) {
+    $('history-list').replaceChildren(...state.history.slice(0, 3).map((article) => {
+      const button = document.createElement('button');
+      button.className = 'history-link'; button.textContent = article.title;
+      button.addEventListener('click', () => { showView(false); showArticle(article); });
+      return button;
+    }));
+  }
+  const cards = state.saved.map((article) => {
+    const card = document.createElement('article'); card.className = 'notebook-card';
+    const title = document.createElement('h2'); title.textContent = article.title;
+    const excerpt = document.createElement('p'); excerpt.textContent = article.extract.slice(0, 190) + (article.extract.length > 190 ? '…' : '');
+    const link = document.createElement('a'); link.textContent = 'Keep reading ↗'; link.href = article.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+    const remove = document.createElement('button'); remove.textContent = 'Remove';
+    remove.setAttribute('aria-label', `Remove ${article.title} from my notebook`);
+    remove.addEventListener('click', () => toggleSave(article));
+    card.append(title, excerpt, link, remove);
+    return card;
+  });
+  if (!cards.length) {
+    const empty = document.createElement('p'); empty.className = 'muted';
+    empty.textContent = 'Use Keep to save an article here.'; cards.push(empty);
+  }
+  $('saved-list').replaceChildren(...cards);
+}
 
 function showArticle(article) {
   current = article;
@@ -19,6 +92,7 @@ function showArticle(article) {
   $('reading-time').textContent = `Excerpt · ${Math.max(1, Math.ceil(article.extract.split(/\s+/).length / 200))} min`;
   $('discover').firstChild.textContent = 'Another page ';
   $('article-title').focus({ preventScroll: true });
+  renderNotebook();
 }
 
 async function discover() {
@@ -44,12 +118,16 @@ async function discover() {
     if (!response.ok) throw new Error('Wikipedia request failed');
     const data = await response.json();
     const pages = (data.query?.pages || []).filter((page) => page.pageid > 0 && page.ns === 0 && !page.missing && !Object.hasOwn(page.pageprops || {}, 'disambiguation'));
-    const page = pages.find((item) => item.extract?.length > 100) || pages[0];
+    const unseen = pages.filter((page) => !state.history.some((item) => item.id === page.pageid));
+    const pool = unseen.length ? unseen : pages;
+    const page = pool.find((item) => item.extract?.length > 100) || pool[0];
     if (!page) throw new Error('No article found');
     const article = {
       id: page.pageid, lang: 'en', title: page.title, extract: page.extract || '',
       url: `https://en.wikipedia.org/?curid=${page.pageid}`
     };
+    state.history = [article, ...state.history.filter((item) => articleKey(item) !== articleKey(article))].slice(0, 60);
+    persist();
     showArticle(article);
     $('announcement').textContent = `New discovery: ${article.title}.`;
   } catch (error) {
@@ -67,3 +145,8 @@ async function discover() {
 }
 
 $('discover').addEventListener('click', discover);
+$('save-current').addEventListener('click', () => { if (current) toggleSave(current); });
+$('nav-explore').addEventListener('click', () => showView(false));
+$('nav-saved').addEventListener('click', () => showView(true));
+document.querySelector('.brand').addEventListener('click', (event) => { event.preventDefault(); showView(false); });
+renderNotebook();

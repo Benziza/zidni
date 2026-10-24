@@ -14,14 +14,17 @@
     <header>
       <a class="brand" href="/" aria-label="Zidni home">zidni<span>.</span></a>
       <span>A little cabinet of curiosities.</span>
+      <nav aria-label="Main navigation"><button id="nav-explore" aria-current="page">At random</button><button id="nav-saved">My notebook <span id="saved-count">0</span></button></nav>
     </header>
     <main>
+      <section id="explore-view">
       <p class="eyebrow">A few minutes elsewhere</p>
       <h1>A Wikipedia article,<br><em>at random.</em></h1>
       <p>Something to read. Something you might remember.<br>Leave the first page to chance.</p>
       <button class="button" id="discover" type="button">A random page <span aria-hidden="true">↗</span></button>
       <p id="error" class="error" role="alert" hidden></p>
       <noscript><p><a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer">Open a random article on Wikipedia</a></p></noscript>
+      <div class="reading-layout">
       <section id="discovery" class="paper" aria-label="Your next discovery" aria-busy="false">
         <div class="paper-heading">The pages we would never have looked for.</div>
         <div id="empty" class="empty">
@@ -33,9 +36,18 @@
           <div class="article-meta"><span id="article-language">Wikipedia · English</span><span id="reading-time"></span></div>
           <h2 id="article-title" tabindex="-1"></h2>
           <div id="article-extract" class="article-extract"></div>
-          <div class="article-actions"><a id="article-link" target="_blank" rel="noopener noreferrer">Continue on Wikipedia ↗</a></div>
+          <div class="article-actions"><a id="article-link" target="_blank" rel="noopener noreferrer">Continue on Wikipedia ↗</a><button id="save-current" type="button" aria-pressed="false">Keep</button></div>
           <p class="credit">Text from Wikipedia · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA</a></p>
         </article>
+      </section>
+      <aside aria-labelledby="recent-title"><h2 id="recent-title">Recently opened</h2><div id="history-list"><p class="muted">Pages come and go. Their traces stay here.</p></div></aside>
+      </div>
+      </section>
+      <section id="saved-view" hidden>
+        <p class="eyebrow">Keep it close</p>
+        <h1>My notebook.</h1>
+        <p>The pages you wanted to come back to.</p>
+        <div id="saved-list" class="saved-grid"></div>
       </section>
     </main>
     <footer>
@@ -44,5 +56,6 @@
     </footer>
   </div>
   <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+  <div id="toast" class="toast" role="status"></div>
 </body>
 </html>
