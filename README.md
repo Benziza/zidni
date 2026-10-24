@@ -27,3 +27,4 @@ Use **A− / A+** to choose a text size between 16 and 24 pixels. The size is re
 The daily counter marks three different discoveries each day, using your local date. Opening a page from history does not increase it. You can keep reading after three pages.
 
 Some excerpts include a Wikipedia thumbnail. Follow its image details link to check the author and license. Text excerpts link to their original article and are shared under CC BY-SA 4.0.
+Interface text is kept in locales.js. The app opens in English by default.
