@@ -14,6 +14,7 @@ const files = {
   '/locales.js': ['locales.js', 'text/javascript; charset=utf-8'],
   '/language.js': ['language.js', 'text/javascript; charset=utf-8'],
   '/topics.js': ['topics.js', 'text/javascript; charset=utf-8'],
+  '/quick.js': ['quick.js', 'text/javascript; charset=utf-8'],
   '/sitemap.xml': ['sitemap.xml', 'application/xml; charset=utf-8'],
   '/social-card.png': ['social-card.png', 'image/png'],
   '/robots.txt': ['robots.txt', 'text/plain; charset=utf-8'],

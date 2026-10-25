@@ -18,36 +18,21 @@ function applyLanguage() {
   }
   const bindings = {
     'header>span': 'tagline', '#nav-explore': 'explore', '#saved-label': 'saved',
-    '.intro .eyebrow': 'eyebrow', '.intro>p:last-of-type': 'description',
-    '.paper-heading': 'paper', '.empty p': 'emptyDescription',
-    '#article-link-label': 'read', '#credit-label': 'credit', '#loading': 'loading',
-    '#recent-title': 'recent', '.daily-card .eyebrow': 'ritual', '.daily-card h2': 'ritualTitle',
     '#saved-view>.eyebrow': 'savedEyebrow', '#saved-view>h1': 'saved',
     '#saved-view>p:not(.eyebrow)': 'collectionDescription', '#export-notebook': 'export',
     '.skip-link': 'skip', '.how-it-works .eyebrow': 'howEyebrow', '#how-title': 'howTitle',
     '.how-description': 'howDescription', '#how-link': 'howLink',
-    'footer>span': 'footer', 'footer>a:last-child': 'thanks', '#image-source': 'imageCredit'
+    'footer>span': 'footer', 'footer>a:last-child': 'thanks'
   };
   for (const [selector, name] of Object.entries(bindings)) {
     document.querySelectorAll(selector).forEach((node) => { node.textContent = t(name); });
   }
-  for (const [selector, first, second] of [['.intro h1', 'titleA', 'titleB'], ['.empty h2', 'emptyA', 'emptyB']]) {
-    const em = document.createElement('em'); em.textContent = t(second);
-    document.querySelector(selector).replaceChildren(document.createTextNode(t(first)), document.createElement('br'), em);
-  }
   document.querySelector('.brand').setAttribute('aria-label', t('home'));
   document.querySelector('nav').setAttribute('aria-label', t('nav'));
-  $('discovery').setAttribute('aria-label', t('discovery'));
   $('notebook-search').placeholder = t('searchPlaceholder');
   $('notebook-search').setAttribute('aria-label', t('searchLabel'));
-  document.querySelector('.reader-toolbar [role=group]').setAttribute('aria-label', t('fontGroup'));
-  $('font-smaller').setAttribute('aria-label', t('smaller'));
-  $('font-larger').setAttribute('aria-label', t('larger'));
-  $('quiet-reading').textContent = t(document.body.classList.contains('quiet-reading') ? 'exitCalm' : 'calm');
-  $('discover-label').textContent = t(current ? 'another' : 'discover');
   if (!$('error').hidden) $('error').textContent = t($('error').dataset.kind || 'offline');
   if (current) showArticle(current);
-  if (!state.history.length) $('history-list').firstElementChild.textContent = t('emptyHistory');
   $('language-label').textContent = t('language');
   $('language').setAttribute('aria-label', t('languageLabel') + ': ' + LANGUAGES[state.language]);
   $('language-menu').setAttribute('aria-label', t('languageLabel'));
@@ -56,7 +41,7 @@ function applyLanguage() {
   renderTopics();
   document.querySelectorAll('[data-language]').forEach((option) => option.setAttribute('aria-checked', String(option.dataset.language === state.language)));
   renderNotebook();
-  renderDaily();
+  renderQuickTexts();
 }
 
 const languageOptions = [...document.querySelectorAll('#language-menu [data-language]')];
@@ -86,6 +71,7 @@ languageOptions.forEach((option) => {
     state.language = option.dataset.language;
     closeLanguageMenu(true); applyLanguage(); persist();
     notify(t('next', {language:LANGUAGES[state.language]}));
+    discover();
   });
 });
 $('language-menu').addEventListener('keydown', (event) => {
