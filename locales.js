@@ -3,6 +3,11 @@
 const LANGUAGES = { en: 'English', fr: 'Français', ar: 'العربية', ary: 'الدارجة' };
 const TEXTS = {
   en: {
+    "topic": "Topic",
+    "allTopics": "All topics",
+    "topicHint": "Choose a topic for your next random page.",
+    "nextTopic": "Next discoveries: {topic}.",
+    "topicUnavailable": "No article found for this topic in this language. Try again, choose another topic or change the language.",
     "home": "Zidni, home",
     "tagline": "A little cabinet of curiosities.",
     "explore": "At random",
@@ -13,7 +18,7 @@ const TEXTS = {
     "eyebrow": "A few minutes elsewhere",
     "titleA": "A Wikipedia article,",
     "titleB": "at random.",
-    "description": "An excerpt to read, an idea to keep.\nChoose a language. Leave the rest to chance.",
+    "description": "An excerpt to read, an idea to keep.\nChoose a language and a topic. Leave the rest to chance.",
     "discover": "A random page",
     "another": "Another page",
     "paper": "The pages we would never have looked for.",
@@ -78,6 +83,11 @@ const TEXTS = {
     "removePage": "Remove {title} from my notebook"
   },
   fr: {
+    "topic": "Thème",
+    "allTopics": "Tous les thèmes",
+    "topicHint": "Choisis un thème pour ta prochaine page au hasard.",
+    "nextTopic": "Prochaines découvertes : {topic}.",
+    "topicUnavailable": "Aucun article trouvé pour ce thème dans cette langue. Réessaie, choisis un autre thème ou change de langue.",
     "home": "Zidni, accueil",
     "tagline": "Un petit cabinet de curiosités.",
     "explore": "Au hasard",
@@ -88,7 +98,7 @@ const TEXTS = {
     "eyebrow": "Quelques minutes ailleurs",
     "titleA": "Un article Wikipédia,",
     "titleB": "au hasard.",
-    "description": "Un extrait à lire, une idée à garder.\nChoisis ta langue, le hasard fait le reste.",
+    "description": "Un extrait à lire, une idée à garder.\nChoisis ta langue et un thème, le hasard fait le reste.",
     "discover": "Une page au hasard",
     "another": "Une autre page",
     "paper": "Les pages qu’on n’aurait pas cherchées.",
@@ -153,6 +163,11 @@ const TEXTS = {
     "removePage": "Retirer {title} du carnet"
   },
   ar: {
+    "topic": "المجال",
+    "allTopics": "جميع المجالات",
+    "topicHint": "اختر مجالًا لصفحتك العشوائية التالية.",
+    "nextTopic": "الاكتشافات القادمة: {topic}.",
+    "topicUnavailable": "لم نعثر على مقال في هذا المجال بهذه اللغة. حاول مجددًا أو اختر مجالًا آخر أو غيّر اللغة.",
     "home": "زيدني، الرئيسية",
     "tagline": "ركن صغير للفضول.",
     "explore": "عشوائي",
@@ -163,7 +178,7 @@ const TEXTS = {
     "eyebrow": "دقائق في مكان آخر",
     "titleA": "مقال من ويكيبيديا،",
     "titleB": "بمحض الصدفة.",
-    "description": "مقتطف تقرؤه، وفكرة تحتفظ بها.\nاختر لغتك ودع الباقي للصدفة.",
+    "description": "مقتطف تقرؤه، وفكرة تحتفظ بها.\nاختر لغتك ومجالك ودع الباقي للصدفة.",
     "discover": "صفحة عشوائية",
     "another": "صفحة أخرى",
     "paper": "صفحات لم نكن لنبحث عنها.",
@@ -228,6 +243,11 @@ const TEXTS = {
     "removePage": "أزل {title} من دفتري"
   },
   ary: {
+    "topic": "المجال",
+    "allTopics": "جميع المجالات",
+    "topicHint": "ختار المجال ديال الصفحة اللي جاية بالزهر.",
+    "nextTopic": "المقالات اللي جايين: {topic}.",
+    "topicUnavailable": "ما لقيناش مقال فهاد المجال بهاد اللغة. عاود جرّب، ختار مجال آخر ولا بدّل اللغة.",
     "home": "زيدني، الصفحة اللولة",
     "tagline": "ركن صغير للفضول.",
     "explore": "بالزهر",
@@ -238,7 +258,7 @@ const TEXTS = {
     "eyebrow": "دقايق فشي بلاصة أخرى",
     "titleA": "مقال من ويكيپيديا،",
     "titleB": "بالزهر.",
-    "description": "قرا شي حاجة جديدة، وخبّي الفكرة اللي عجباتك.\nختار اللغة وخلي الباقي للزهر.",
+    "description": "قرا شي حاجة جديدة، وخبّي الفكرة اللي عجباتك.\nختار اللغة والمجال وخلي الباقي للزهر.",
     "discover": "عطيني شي صفحة",
     "another": "صفحة خرى",
     "paper": "صفحات ما كانش غادي يجيونا فالبال.",

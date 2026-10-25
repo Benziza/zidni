@@ -5,7 +5,8 @@
   "description": "Discover a random Wikipedia article.",
   "scripts": {
     "start": "node server.cjs",
-    "check": "node --check server.cjs && node --check app.js && node --check locales.js && node --check language.js && node --check prepare-seo.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "check": "node --check server.cjs && node --check app.js && node --check topics.js && node --check locales.js && node --check language.js && node --check prepare-seo.cjs",
     "prepare:seo": "node prepare-seo.cjs"
   },
   "engines": {

@@ -26,8 +26,9 @@
   <!-- PUBLIC_SEO_END -->
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css">
-  <script src="locales.js?v=63ba707b34" defer></script>
+  <script src="locales.js?v=bdc2bc5a10" defer></script>
   <script src="language.js" defer></script>
+  <script src="topics.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -48,7 +49,14 @@
       </div>
       <p id="error" class="error" role="alert" hidden></p>
       <noscript><p><a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer">Open a random article on Wikipedia</a></p></noscript>
+      <div class="discovery-filters">
       <div class="language-select" id="language-picker"><span id="language-label">Language</span><button id="language" class="language-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="language-menu" aria-label="Site and article language: English"><span id="language-current" lang="en" dir="auto">English</span><span aria-hidden="true">⌄</span></button><div id="language-menu" class="language-menu" role="menu" aria-label="Site and article language" hidden><button type="button" role="menuitemradio" aria-checked="true" data-language="en"><span lang="en" dir="auto">English</span><span class="language-check" aria-hidden="true">✓</span></button><button type="button" role="menuitemradio" aria-checked="false" data-language="fr"><span lang="fr" dir="auto">Français</span><span class="language-check" aria-hidden="true">✓</span></button><button type="button" role="menuitemradio" aria-checked="false" data-language="ar"><span lang="ar" dir="auto">العربية</span><span class="language-check" aria-hidden="true">✓</span></button><button type="button" role="menuitemradio" aria-checked="false" data-language="ary"><span lang="ary" dir="auto">الدارجة</span><span class="language-check" aria-hidden="true">✓</span></button></div></div>
+      <div class="topic-select">
+        <label id="topic-label" for="topic">Topic</label>
+        <select id="topic" aria-describedby="topic-hint"><option value="all">All topics</option></select>
+        <p id="topic-hint">Choose a topic for your next random page.</p>
+      </div>
+      </div>
       <div class="reading-layout">
       <section id="discovery" class="paper" aria-label="Your next discovery" aria-busy="false">
         <div class="paper-heading">The pages we would never have looked for.</div>
@@ -58,7 +66,7 @@
         </div>
         <p id="loading" class="loading" role="status" hidden>Leafing through Wikipedia…</p>
         <article id="article" hidden>
-          <div class="article-meta"><span id="article-language">Wikipedia · English</span><span id="reading-time"></span></div>
+          <div class="article-meta"><span id="article-language">Wikipedia · English</span><span id="article-topic" hidden></span><span id="reading-time"></span></div>
           <div class="reader-toolbar"><button id="quiet-reading" type="button" aria-pressed="false">Quiet reading</button><div role="group" aria-label="Text size"><button id="font-smaller" type="button" aria-label="Decrease text size">A−</button><output id="font-size" aria-live="polite">18 px</output><button id="font-larger" type="button" aria-label="Increase text size">A+</button></div></div>
           <h2 id="article-title" tabindex="-1"></h2>
           <figure id="article-figure" hidden><img id="article-image" alt="" decoding="async" referrerpolicy="no-referrer"><figcaption><a id="image-source" target="_blank" rel="noopener noreferrer">Image details and license on Wikipedia ↗</a></figcaption></figure>
