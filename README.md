@@ -2,6 +2,8 @@
 
 Random Wikipedia articles in English, French, Arabic, and Moroccan Darija. Save what you like in a browser notebook.
 
+Choose from 20 topics, or keep all topics for an unrestricted random discovery. Your choice is remembered in this browser. Topic discoveries follow Wikipedia categories and their subcategories in the selected language; availability depends on that edition of Wikipedia.
+
 [Open Zidni](https://benziza.github.io/zidni/)
 
 To run locally with Node.js 20 or later:

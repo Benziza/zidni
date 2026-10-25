@@ -3,10 +3,11 @@
 let current = null;
 let busy = false;
 const storageKey = 'zidni.v1';
-let state = { history: [], saved: [], fontSize: 18, daily: {}, language: 'en' };
+let state = { history: [], saved: [], fontSize: 18, daily: {}, language: 'en', topic: 'all' };
 try {
   const stored = JSON.parse(localStorage.getItem(storageKey));
   if (LANGUAGES[stored?.language]) state.language = stored.language;
+  if (stored?.topic === 'all' || TOPICS.some((topic) => topic.id === stored?.topic)) state.topic = stored.topic;
   if ([16,18,20,22,24].includes(stored?.fontSize)) state.fontSize = stored.fontSize;
   if (stored?.daily && typeof stored.daily === 'object' && !Array.isArray(stored.daily)) {
     state.daily = Object.fromEntries(Object.entries(stored.daily).filter(([day, keys]) => /^\d{4}-\d{2}-\d{2}$/.test(day) && Array.isArray(keys)).sort(([a], [b]) => b.localeCompare(a)).slice(0, 30));
@@ -116,6 +117,8 @@ function exportNotebook() {
 function showArticle(article) {
   current = article;
   $('article-language').textContent = 'Wikipedia · ' + LANGUAGES[article.lang];
+  $('article-topic').textContent = topicLabel(article.topic, state.language);
+  $('article-topic').hidden = !$('article-topic').textContent;
   for (const id of ['article-title', 'article-extract']) { $(id).lang = article.lang; $(id).dir = isRtl(article.lang) ? 'rtl' : 'ltr'; }
   $('empty').hidden = true;
   $('article').hidden = false;
@@ -147,33 +150,24 @@ async function discover() {
   busy = true;
   $('discover').disabled = true;
   $('language').disabled = true;
+  $('topic').disabled = true;
   closeLanguageMenu();
   $('discovery').setAttribute('aria-busy', 'true');
   $('loading').hidden = false;
   $('error').hidden = true;
   const language = state.language;
+  const topic = state.topic;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 18000);
+  const timeout = setTimeout(() => controller.abort(), 25000);
 
   try {
-    const params = new URLSearchParams({
-      action: 'query', format: 'json', formatversion: '2', origin: '*',
-      generator: 'random', grnnamespace: '0', grnlimit: '5',
-      prop: 'extracts|info|pageprops|pageimages', inprop: 'url', exintro: '1',
-      piprop: 'thumbnail', pithumbsize: '650', explaintext: '1', exchars: '1200', ppprop: 'disambiguation'
-    });
-    const response = await fetch(`https://${language}.wikipedia.org/w/api.php?${params}`, {
-      signal: controller.signal, credentials: 'omit'
-    });
-    if (!response.ok) throw new Error('Wikipedia request failed');
-    const data = await response.json();
-    const pages = (data.query?.pages || []).filter((page) => page.pageid > 0 && page.ns === 0 && !page.missing && !Object.hasOwn(page.pageprops || {}, 'disambiguation'));
+    const pages = await discoverPages(language, topic, controller.signal);
     const unseen = pages.filter((page) => !state.history.some((item) => item.lang === language && item.id === page.pageid));
     const pool = unseen.length ? unseen : pages;
     const page = pool.find((item) => item.extract?.length > 100) || pool[0];
     if (!page) throw new Error('No article found');
     const article = {
-      id: page.pageid, lang: language, title: page.title, extract: page.extract || '',
+      id: page.pageid, lang: language, topic, title: page.title, extract: page.extract || '',
       url: `https://${language}.wikipedia.org/?curid=${page.pageid}`, image: page.thumbnail?.source || '',
       imageWidth: page.thumbnail?.width, imageHeight: page.thumbnail?.height
     };
@@ -183,22 +177,29 @@ async function discover() {
     showArticle(article);
     $('announcement').textContent = t('found', { title: article.title });
   } catch (error) {
-    $('error').textContent = error.name === 'AbortError'
-      ? t('timeout')
-      : t('offline');
-    $('error').dataset.kind = error.name === 'AbortError' ? 'timeout' : 'offline';
+    const kind = error.name === 'AbortError' ? 'timeout' : error.name === 'TopicUnavailableError' ? 'topicUnavailable' : 'offline';
+    $('error').textContent = t(kind);
+    $('error').dataset.kind = kind;
     $('error').hidden = false;
   } finally {
     clearTimeout(timeout);
     busy = false;
     $('discover').disabled = false;
     $('language').disabled = false;
+    $('topic').disabled = false;
     $('loading').hidden = true;
     $('discovery').setAttribute('aria-busy', 'false');
   }
 }
 
 $('discover').addEventListener('click', discover);
+$('topic').addEventListener('change', () => {
+  if (busy) return;
+  state.topic = $('topic').value;
+  $('error').hidden = true;
+  persist();
+  notify(t('nextTopic', { topic: state.topic === 'all' ? t('allTopics') : topicLabel(state.topic, state.language) }));
+});
 $('save-current').addEventListener('click', () => { if (current) toggleSave(current); });
 $('nav-explore').addEventListener('click', () => showView(false));
 $('nav-saved').addEventListener('click', () => showView(true));

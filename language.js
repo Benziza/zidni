@@ -53,6 +53,7 @@ function applyLanguage() {
   $('language-menu').setAttribute('aria-label', t('languageLabel'));
   $('language-current').textContent = LANGUAGES[state.language];
   $('language-current').lang = state.language;
+  renderTopics();
   document.querySelectorAll('[data-language]').forEach((option) => option.setAttribute('aria-checked', String(option.dataset.language === state.language)));
   renderNotebook();
   renderDaily();
