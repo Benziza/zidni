@@ -25,13 +25,14 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Zidni","url":"https://benziza.github.io/zidni/","inLanguage":["en","fr","ar","ary"]}</script>
   <!-- PUBLIC_SEO_END -->
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css">
-  <script src="locales.js?v=bdc2bc5a10" defer></script>
-  <script src="language.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=a60886b7a2">
+  <script src="locales.js?v=679f40c584" defer></script>
+  <script src="language.js?v=8ee566422c" defer></script>
   <script src="topics.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="quick.js?v=0fe84e3e74" defer></script>
+  <script src="app.js?v=7aa33ac60d" defer></script>
 </head>
-<body>
+<body class="quick-mode">
   <a class="skip-link" href="#main-content">Skip to content</a>
   <div class="page">
     <header>
@@ -41,11 +42,10 @@
     </header>
     <main id="main-content" tabindex="-1">
       <section id="explore-view">
-      <div class="intro">
-      <p class="eyebrow">A few minutes elsewhere</p>
-      <h1>A Wikipedia article,<br><em>at random.</em></h1>
-      <p>Something to read. Something you might remember.<br>Leave the first page to chance.</p>
-      <button class="button" id="discover" type="button"><span id="discover-label">A random page</span> <span aria-hidden="true">↗</span></button>
+      <div id="quick-heading" class="quick-heading">
+        <p id="quick-eyebrow" class="eyebrow">LET CURIOSITY LEAD</p>
+        <h1><span id="quick-title-a">A little swipe.</span><br><em id="quick-title-b">A new perspective.</em></h1>
+        <p id="quick-description">Something unexpected. Something worth keeping.</p>
       </div>
       <p id="error" class="error" role="alert" hidden></p>
       <noscript><p><a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer">Open a random article on Wikipedia</a></p></noscript>
@@ -57,26 +57,33 @@
         <p id="topic-hint">Choose a topic for your next random page.</p>
       </div>
       </div>
-      <div class="reading-layout">
-      <section id="discovery" class="paper" aria-label="Your next discovery" aria-busy="false">
-        <div class="paper-heading">The pages we would never have looked for.</div>
-        <div id="empty" class="empty">
-          <h2>Hang on,<br><em>what’s that?</em></h2>
-          <p>That’s often how it starts.<br>One page, then another.</p>
+      <section id="quick-view" aria-label="Quick discovery">
+        <div class="quick-deck">
+          <article id="quick-card" class="quick-card" tabindex="0" aria-describedby="quick-swipe-hint" aria-busy="false">
+            <div id="quick-visual" class="quick-visual">
+              <div class="quick-art" aria-hidden="true"><i></i><i></i><span>✳</span></div>
+              <img id="quick-image" alt="" decoding="async" referrerpolicy="no-referrer" draggable="false" hidden>
+              <span id="quick-topic" class="quick-topic">A little of everything</span>
+            </div>
+            <div id="quick-placeholder" class="quick-card-body quick-placeholder">
+              <p id="quick-empty-eyebrow" class="quick-kicker">YOUR NEXT DISCOVERY</p>
+              <h2 id="quick-empty-title">A little surprise awaits.</h2>
+              <p id="quick-empty-description">Choose a topic, then let the next page surprise you.</p>
+            </div>
+            <div id="quick-content" class="quick-card-body" hidden>
+              <div class="quick-meta"><span id="quick-language"></span><span id="quick-time"></span></div>
+              <h2 id="quick-article-title" tabindex="-1"></h2>
+              <p id="quick-extract" data-nosnippet></p>
+              <div class="quick-actions">
+                <button id="quick-save" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4Z"/></svg><span id="quick-save-label">Keep</span></button>
+                <a id="quick-read" target="_blank" rel="noopener noreferrer"><span id="quick-read-label">Read more</span><span aria-hidden="true">↗</span></a>
+              </div>
+              <p class="quick-credit"><a id="quick-source" target="_blank" rel="noopener noreferrer">Wikipedia · source & image credits ↗</a><span> · </span><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA</a></p>
+            </div>
+          </article>
         </div>
-        <p id="loading" class="loading" role="status" hidden>Leafing through Wikipedia…</p>
-        <article id="article" hidden>
-          <div class="article-meta"><span id="article-language">Wikipedia · English</span><span id="article-topic" hidden></span><span id="reading-time"></span></div>
-          <div class="reader-toolbar"><button id="quiet-reading" type="button" aria-pressed="false">Quiet reading</button><div role="group" aria-label="Text size"><button id="font-smaller" type="button" aria-label="Decrease text size">A−</button><output id="font-size" aria-live="polite">18 px</output><button id="font-larger" type="button" aria-label="Increase text size">A+</button></div></div>
-          <h2 id="article-title" tabindex="-1"></h2>
-          <figure id="article-figure" hidden><img id="article-image" alt="" decoding="async" referrerpolicy="no-referrer"><figcaption><a id="image-source" target="_blank" rel="noopener noreferrer">Image details and license on Wikipedia ↗</a></figcaption></figure>
-          <div id="article-extract" class="article-extract" data-nosnippet></div>
-          <div class="article-actions"><a id="article-link" target="_blank" rel="noopener noreferrer"><span id="article-link-label">Continue on Wikipedia ↗</span></a><button id="save-current" type="button" aria-pressed="false">Keep</button></div>
-          <p class="credit"><span id="credit-label">Text from Wikipedia</span> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA</a></p>
-        </article>
+        <div class="quick-navigation"><button id="quick-next" type="button"><span aria-hidden="true">↑</span><span id="quick-next-label">Start exploring</span></button><p id="quick-swipe-hint">Swipe up for the next discovery</p><p id="quick-loading" class="quick-loading" role="status" hidden>Leafing through Wikipedia.</p></div>
       </section>
-      <aside aria-labelledby="recent-title"><h2 id="recent-title">Recently opened</h2><div id="history-list"><p class="muted">Pages come and go. Their traces stay here.</p></div><section class="daily-card"><p class="eyebrow">A small ritual</p><h2>Three pages.<br>A little further.</h2><div class="daily-progress"><div id="progress-dots" aria-hidden="true"><i></i><i></i><i></i></div><span id="daily-count">0 / 3 today</span></div></section></aside>
-      </div>
       </section>
       <section id="saved-view" hidden>
         <p class="eyebrow">Keep it close</p>
@@ -86,18 +93,18 @@
         <div id="saved-list" class="saved-grid"></div>
       </section>
     </main>
-    <section class="how-it-works" id="how-it-works" aria-labelledby="how-title">
+    <section class="how-it-works" id="how-it-works" aria-labelledby="how-title" hidden>
       <div><p class="eyebrow">The idea, simply put</p><h2 id="how-title">Discover without searching.</h2><p class="how-description">Zidni is a free tool for discovering random Wikipedia articles. Each click offers a new page, an excerpt and a link to the full article. Articles are available in French, English, Arabic and Moroccan Darija.</p></div>
       <div class="questions">
         <details><summary>How do I keep an article?</summary><p>The “Keep” button adds a page to your notebook. You can find it again, search for a word or export your reading list as a text file.</p></details>
         <details><summary>Where is my notebook stored?</summary><p>In this browser, on this device. No account is needed. Clearing browser data also clears the notebook; export it to keep a copy.</p></details>
         <details><summary>Where do the articles come from?</summary><p>Excerpts are loaded from the Wikipedia API. Text belongs to its contributors and is offered under the CC BY-SA licence. Visit the source page for the full information and any image credits.</p></details>
-        <details><summary>How can I read more comfortably?</summary><p>Use A− and A+ to adjust the text size. “Quiet reading” hides the surrounding elements; press Escape to return to the normal view.</p></details>
+        <details><summary>How do I discover another page?</summary><p>Swipe upward on the card, press the up arrow while the card is focused, or use Next discovery. Read more opens the full article on Wikipedia.</p></details>
       </div>
     </section>
     <footer>
       <span>Read a little. Keep what you like.</span>
-      <a id="how-link" href="#how-it-works">How it works</a>
+      <button id="how-link" type="button" aria-expanded="false" aria-controls="how-it-works">How it works</button>
       <a href="https://www.wikipedia.org/" target="_blank" rel="noopener noreferrer">Thanks, Wikipedia.</a>
     </footer>
   </div>

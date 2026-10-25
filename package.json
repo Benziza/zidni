@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.cjs",
     "test": "node --test tests/*.test.cjs",
-    "check": "node --check server.cjs && node --check app.js && node --check topics.js && node --check locales.js && node --check language.js && node --check prepare-seo.cjs",
+    "check": "node --check server.cjs && node --check app.js && node --check topics.js && node --check quick.js && node --check locales.js && node --check language.js && node --check prepare-seo.cjs",
     "prepare:seo": "node prepare-seo.cjs"
   },
   "engines": {
