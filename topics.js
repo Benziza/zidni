@@ -19,6 +19,7 @@ const TOPICS = [
   ['philosophy', 'Philosophy', 'Philosophie', 'الفلسفة', 'الفلسفة'],
   ['psychology', 'Psychology', 'Psychologie', 'علم النفس', 'علم النفس'],
   ['society', 'Society', 'Société', 'المجتمع', 'المجتمع'],
+  ['economy', 'Economy', 'Économie', 'الاقتصاد', 'الاقتصاد', 'Economics'],
   ['nature', 'Nature & environment', 'Nature et environnement', 'الطبيعة والبيئة', 'الطبيعة والبيئة', 'Natural environment'],
   ['sports', 'Sports', 'Sport', 'الرياضة', 'الرياضة'],
   ['food', 'Food and drink', 'Cuisine et boissons', 'الطعام والشراب', 'الماكلة والشرب']

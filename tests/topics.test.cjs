@@ -112,9 +112,9 @@ test('API errors and aborts propagate instead of being treated as an empty topic
   await assert.rejects(aborted.discover('en', 'all'), { name: 'AbortError' });
 });
 
-test('offers 20 unique topics with labels for all four languages', () => {
+test('offers 21 unique topics with labels for all four languages', () => {
   const { context } = harness(() => ({}));
-  assert.equal(vm.runInContext('TOPICS.length', context), 20);
-  assert.equal(vm.runInContext('new Set(TOPICS.map(topic => topic.id)).size', context), 20);
+  assert.equal(vm.runInContext('TOPICS.length', context), 21);
+  assert.equal(vm.runInContext('new Set(TOPICS.map(topic => topic.id)).size', context), 21);
   assert.ok(vm.runInContext("TOPICS.every(topic => ['en','fr','ar','ary'].every(lang => topic.labels[lang]))", context));
 });
