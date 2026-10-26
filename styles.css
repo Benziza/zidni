@@ -11,7 +11,7 @@ button:disabled { opacity: .6; cursor: wait; }
 h2 { font: 400 36px/1.2 Georgia, serif; letter-spacing: -.7px; margin: 20px 0; }
 h2 em { color: #505d46; }
 .error { background: #e9dfd0; padding: 16px; border-left: 2px solid #9b5139; }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.sr-only { position: absolute; top: 0; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 [hidden] { display: none !important; }
 @media (max-width: 540px) {
   h2 { font-size: 30px; }
@@ -211,4 +211,41 @@ html[dir=rtl] .quick-card h2 { font-size: 29px; line-height: 1.5; }
 }
 @media (prefers-reduced-motion: reduce) {
   .quick-card, .quick-card.is-arriving { animation: none; transition: none; }
+}
+
+/* Let discovery fit the available screen height, including its footer. */
+.quick-mode .page { min-height: 100svh; display: flex; flex-direction: column; }
+.quick-mode header { min-height: 72px; }
+.quick-mode main { flex: 1; padding: 16px 0 20px; }
+.quick-mode footer { padding: 8px 0; }
+.quick-visual { height: clamp(64px, calc(100svh - 560px), 205px); }
+#quick-article-title { -webkit-line-clamp: 2; }
+.quick-card h2 { font-size: 28px; margin: 12px 0 10px; }
+.quick-card-body { padding: 18px 24px 14px; }
+#quick-extract { margin-bottom: 16px; }
+.quick-credit { margin-top: 10px; }
+.quick-placeholder { min-height: 210px; }
+.quick-deck { margin-bottom: 22px; }
+
+@media (max-width: 800px) {
+  .quick-mode .page { padding-inline: 22px; }
+  .quick-mode header { min-height: 56px; }
+  .quick-mode .brand { font-size: 32px; }
+  .quick-mode main { padding: 10px 0 12px; }
+  .quick-heading h1, html[dir=rtl] .quick-heading h1 { font-size: 26px; line-height: 1.25; margin-top: 5px; }
+  .quick-mode .discovery-filters { margin: 8px auto; }
+  .quick-visual { height: clamp(48px, calc(100svh - 604px), 158px); }
+  .quick-card-body { padding: 12px 18px; }
+  .quick-card h2, html[dir=rtl] .quick-card h2 { font-size: 24px; line-height: 1.25; margin: 8px 0; }
+  #quick-extract, #quick-extract[lang=ar], #quick-extract[lang=ary] { font-size: 14px; line-height: 1.5; margin-bottom: 12px; }
+  .quick-credit { font-size: 8px; margin-top: 8px; }
+  .quick-placeholder { min-height: 190px; }
+  .quick-deck { margin-bottom: 20px; }
+  #quick-view { padding-bottom: 0; }
+  #quick-swipe-hint { margin-top: 6px; }
+  .quick-mode footer { gap: 4px 12px; font-size: 10px; }
+}
+
+@media (max-width: 800px) and (max-height: 700px) {
+  #quick-extract { -webkit-line-clamp: 2; }
 }
