@@ -86,6 +86,10 @@ function shuffled(items) {
   return copy;
 }
 
+function recentArticleKeys(history, recent = []) {
+  return new Set([...recent, ...history.map((item) => `${item.lang}:${item.id}`)]);
+}
+
 async function readCategory(language, title, signal) {
   const key = `${language}:${title}`;
   if (categoryMembers.has(key)) return categoryMembers.get(key);
@@ -121,36 +125,45 @@ async function discoverPages(language, topicId, signal) {
   const topic = TOPICS.find((item) => item.id === topicId);
   if (!topic) throw topicUnavailable();
   const root = await resolveTopicCategory(topic, language, signal);
-  const branches = [{ title: root, depth: 0 }];
+  const seen = recentArticleKeys(state.history, state.recent);
+  const branches = [{ title: root, depth: 0, branch: root }];
   const visited = new Set();
-  const fallbackIds = new Set();
-  let selectedIds = [];
-  // Explore a bounded random branch, backtracking if a category has no articles.
-  for (let attempt = 0; attempt < 6 && branches.length; attempt++) {
-    const { title, depth } = branches.pop();
-    if (visited.has(title)) { attempt--; continue; }
+  const candidateIds = new Set();
+  const groups = new Map();
+  // Collect from different branches before requesting extracts. Breadth-first
+  // traversal avoids taking a whole batch from the first productive subcategory.
+  while (visited.size < 10 && branches.length && groups.size < 3) {
+    const { title, depth, branch } = branches.shift();
+    if (visited.has(title)) continue;
     visited.add(title);
     const members = await readCategory(language, title, signal);
-    const ids = members.filter((member) => member.ns === 0).map((member) => member.pageid);
-    ids.forEach((id) => fallbackIds.add(id));
+    const ids = shuffled(members.filter((member) => member.ns === 0 &&
+      !seen.has(`${language}:${member.pageid}`) && !candidateIds.has(member.pageid))
+      .map((member) => member.pageid));
+    for (const id of ids) candidateIds.add(id);
+    if (ids.length) groups.set(branch, [...(groups.get(branch) || []), ...ids]);
     const subcategories = depth < 3 ? shuffled(members.filter((member) => member.ns === 14 && !visited.has(member.title))) : [];
-    if (ids.length && (!subcategories.length || Math.random() < 0.35 || attempt === 5)) {
-      selectedIds = ids;
-      break;
-    }
-    branches.push(...subcategories.map((member) => ({ title: member.title, depth: depth + 1 })));
+    branches.push(...subcategories.map((member) => ({
+      title: member.title, depth: depth + 1, branch: depth === 0 ? member.title : branch
+    })));
   }
-  const candidates = shuffled(selectedIds.length ? selectedIds : [...fallbackIds]);
+  // Round-robin the branches, preserving this order after the API response.
+  const pools = shuffled([...groups.values()]);
+  const candidates = [];
+  for (let round = 0; pools.some((pool) => round < pool.length); round++) {
+    for (const pool of pools) if (round < pool.length) candidates.push(pool[round]);
+  }
   if (!candidates.length) throw topicUnavailable();
-  // Sample unseen pages first; keep seen pages as a fallback for small categories.
-  candidates.sort((a, b) => Number(state.history.some((item) => item.lang === language && item.id === a)) -
-    Number(state.history.some((item) => item.lang === language && item.id === b)));
   // Only request another small batch if the first contains no readable articles.
   for (let offset = 0; offset < Math.min(candidates.length, ARTICLE_BATCH_SIZE * 2); offset += ARTICLE_BATCH_SIZE) {
+    const ids = candidates.slice(offset, offset + ARTICLE_BATCH_SIZE);
     const pages = usablePages(await wikipediaQuery(language, {
-      ...articleProperties, pageids: candidates.slice(offset, offset + ARTICLE_BATCH_SIZE).join('|')
+      ...articleProperties, pageids: ids.join('|')
     }, signal));
-    if (pages.length) return shuffled(pages);
+    const byId = new Map(pages.map((page) => [page.pageid, page]));
+    const ordered = ids.filter((id) => byId.has(id)).map((id) => byId.get(id));
+    if (ordered.length) return ordered;
   }
   throw topicUnavailable();
 }
+
