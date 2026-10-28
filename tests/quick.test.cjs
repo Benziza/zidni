@@ -104,4 +104,3 @@ test('card images must have valid dimensions and use a Wikimedia HTTPS host', ()
   assert.equal(context.hasArticleImage({ ...image, image: 'https://example.com/photo.jpg' }), false);
   assert.equal(context.hasArticleImage({ ...image, image: 'http://upload.wikimedia.org/photo.jpg' }), false);
 });
-

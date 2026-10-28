@@ -176,4 +176,3 @@ document.querySelector('.brand').addEventListener('click', (event) => { event.pr
 applyLanguage();
 
 initQuickDiscovery();
-

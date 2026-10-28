@@ -166,4 +166,3 @@ async function discoverPages(language, topicId, signal) {
   }
   throw topicUnavailable();
 }
-

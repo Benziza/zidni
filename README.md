@@ -19,4 +19,3 @@ npm start
 Open http://localhost:4173. No dependencies needed.
 
 Article text comes from Wikipedia under CC BY-SA 4.0. Image credits are linked from each article.
-

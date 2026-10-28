@@ -181,4 +181,3 @@ function initQuickDiscovery() {
   renderQuickArticle(current);
   discover();
 }
-

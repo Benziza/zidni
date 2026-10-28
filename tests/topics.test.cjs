@@ -167,4 +167,3 @@ test('offers 21 unique topics with labels for all four languages', () => {
   assert.equal(vm.runInContext('new Set(TOPICS.map(topic => topic.id)).size', context), 21);
   assert.ok(vm.runInContext("TOPICS.every(topic => ['en','fr','ar','ary'].every(lang => topic.labels[lang]))", context));
 });
-
