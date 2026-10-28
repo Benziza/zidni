@@ -4,11 +4,11 @@ const { readFileSync } = require('node:fs');
 const vm = require('node:vm');
 
 const source = readFileSync(require('node:path').join(__dirname, '..', 'topics.js'), 'utf8');
-function harness(reply, history = []) {
+function harness(reply, history = [], recent = []) {
   const calls = [];
   const context = vm.createContext({
     URLSearchParams,
-    state: { history },
+    state: { history, recent },
     Math: Object.assign(Object.create(Math), { random: () => 0.9 }),
     fetch: async (url, options) => {
       const parsed = new URL(url);
@@ -45,16 +45,65 @@ test('localized topics use the category language link and preserve the abort sig
   assert.ok(calls.every((call) => !call.params.has('generator')));
 });
 
-test('walks into subcategories and prioritizes unseen article IDs', async () => {
+test('walks into subcategories and excludes seen article IDs', async () => {
   const { discover, calls } = harness(({ params }) => {
     if (params.get('list')) return { query: { categorymembers: params.get('cmtitle') === 'Category:Astronomy'
       ? [{ ns: 14, title: 'Category:Planets' }]
       : [{ ns: 0, pageid: 1 }, { ns: 0, pageid: 2 }] } };
     return { query: { pages: [article(1), article(2)] } };
   }, [{ lang: 'en', id: 1 }]);
-  await discover('en', 'astronomy');
+  assert.deepEqual(Array.from(await discover('en', 'astronomy'), (page) => page.pageid), [2]);
   assert.equal(calls[1].params.get('cmtitle'), 'Category:Planets');
-  assert.equal(calls[2].params.get('pageids'), '2|1');
+  assert.equal(calls[2].params.get('pageids'), '2');
+});
+
+test('mixes different branches in one small batch and preserves that order after the API response', async () => {
+  const members = {
+    'Category:Mathematics': [{ ns: 14, title: 'Category:Algebra' }, { ns: 14, title: 'Category:Geometry' }, { ns: 14, title: 'Category:Probability' }],
+    'Category:Algebra': [1, 2, 3].map((pageid) => ({ ns: 0, pageid })),
+    'Category:Geometry': [4, 5, 6].map((pageid) => ({ ns: 0, pageid })),
+    'Category:Probability': [7, 8, 9].map((pageid) => ({ ns: 0, pageid }))
+  };
+  const { discover, calls } = harness(({ params }) => {
+    if (params.get('list')) return { query: { categorymembers: members[params.get('cmtitle')] } };
+    return { query: { pages: params.get('pageids').split('|').map((id) => article(Number(id))).reverse() } };
+  });
+  const pages = await discover('en', 'mathematics');
+  assert.deepEqual(Array.from(pages, (page) => page.pageid), [1, 4, 7, 2, 5]);
+  assert.equal(calls.filter((call) => call.params.has('pageids')).length, 1);
+});
+
+test('exhausted branches yield to unseen sibling articles, including compact recent memory', async () => {
+  const { discover, calls } = harness(({ params }) => {
+    if (params.get('list')) {
+      const title = params.get('cmtitle');
+      const categorymembers = title === 'Category:Mathematics'
+        ? [{ ns: 0, pageid: 1 }, { ns: 14, title: 'Category:Seen' }, { ns: 14, title: 'Category:Fresh' }]
+        : [{ ns: 0, pageid: title === 'Category:Seen' ? 2 : 3 }];
+      return { query: { categorymembers } };
+    }
+    return { query: { pages: params.get('pageids').split('|').map((id) => article(Number(id))) } };
+  }, [{ lang: 'en', id: 1 }], ['en:2', 'fr:3']);
+  assert.deepEqual(Array.from(await discover('en', 'mathematics'), (page) => page.pageid), [3]);
+  assert.equal(calls.find((call) => call.params.has('pageids')).params.get('pageids'), '3');
+});
+
+test('fully seen categories do not request extracts or return repeats', async () => {
+  const { discover, calls } = harness(() => ({ query: { categorymembers: [{ ns: 0, pageid: 1 }] } }), [], ['en:1']);
+  await assert.rejects(discover('en', 'mathematics'), { name: 'TopicUnavailableError' });
+  assert.equal(calls.length, 1);
+});
+
+test('cyclic overlapping branches deduplicate IDs and keep category requests bounded', async () => {
+  const { discover, calls } = harness(({ params }) => {
+    if (params.get('list')) return { query: { categorymembers: [
+      { ns: 0, pageid: 1 }, ...Array.from({ length: 20 }, (_, i) => ({ ns: 14, title: `Category:Branch${i}` }))
+    ] } };
+    return { query: { pages: [article(1)] } };
+  });
+  assert.deepEqual(Array.from(await discover('en', 'mathematics'), (page) => page.pageid), [1]);
+  assert.equal(calls.filter((call) => call.params.get('list')).length, 10);
+  assert.equal(calls.find((call) => call.params.has('pageids')).params.get('pageids'), '1');
 });
 
 test('unavailable language categories never fall back to unrelated random articles', async () => {

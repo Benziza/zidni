@@ -4,6 +4,7 @@ const { readFileSync } = require('node:fs');
 const vm = require('node:vm');
 
 const context = vm.createContext({});
+vm.runInContext(readFileSync(require('node:path').join(__dirname, '..', 'topics.js'), 'utf8'), context);
 vm.runInContext(readFileSync(require('node:path').join(__dirname, '..', 'quick.js'), 'utf8'), context);
 const page = (id) => ({ pageid: id, title: `Page ${id}`, extract: 'A summary. '.repeat(15) });
 
@@ -27,10 +28,46 @@ test('changing topic or language discards cards from the previous selection', as
   assert.deepEqual(calls, ['en:astronomy', 'en:music', 'ar:music']);
 });
 
-test('unseen pages are shown first and short summaries remain usable', async () => {
-  const next = context.createDiscoveryQueue(async () => [page(1), { ...page(2), extract: 'Short.' }]);
+test('seen cards are discarded and short unseen summaries remain usable', async () => {
+  let calls = 0;
+  const next = context.createDiscoveryQueue(async () => ++calls === 1
+    ? [page(1), { ...page(2), extract: 'Short.' }] : [page(3)]);
   assert.equal((await next('en', 'all', null, [{ lang: 'en', id: 1 }])).pageid, 2);
-  assert.equal((await next('en', 'all', null, [])).pageid, 1);
+  assert.equal((await next('en', 'all', null, [])).pageid, 3);
+  assert.equal(calls, 2);
+});
+
+test('an exhausted cached batch loads fresh cards instead of repeating history', async () => {
+  let calls = 0;
+  const next = context.createDiscoveryQueue(async () => ++calls === 1 ? [page(1), page(2)] : [page(2), page(3)]);
+  assert.equal((await next('en', 'mathematics', null, [])).pageid, 1);
+  assert.equal((await next('en', 'mathematics', null, [{ lang: 'en', id: 1 }, { lang: 'en', id: 2 }])).pageid, 3);
+  assert.equal(calls, 2);
+});
+
+test('longer recent memory excludes cards beyond the detailed history and scopes IDs by language', async () => {
+  const next = context.createDiscoveryQueue(async () => [page(1), page(2), page(3)]);
+  assert.equal((await next('en', 'all', null, [], ['en:1', 'fr:2'])).pageid, 2);
+  assert.equal((await next('en', 'all', null, [], ['en:1', 'en:2', 'fr:3'])).pageid, 3);
+});
+
+test('repeated or unavailable batches stop after bounded retries without recycling seen cards', async () => {
+  let calls = 0;
+  const next = context.createDiscoveryQueue(async () => { calls++; return [page(1)]; });
+  await assert.rejects(next('en', 'all', null, [], ['en:1']), { name: 'TopicUnavailableError' });
+  assert.equal(calls, 3);
+  let attempts = 0;
+  const branch = context.createDiscoveryQueue(async () => {
+    if (++attempts === 1) { const error = new Error('Exhausted branch'); error.name = 'TopicUnavailableError'; throw error; }
+    return [page(2)];
+  });
+  assert.equal((await branch('en', 'mathematics', null, [])).pageid, 2);
+});
+
+test('mixed-branch order is preserved even when one summary is short', async () => {
+  const next = context.createDiscoveryQueue(async () => [{ ...page(1), extract: 'Short.' }, page(2), page(3)]);
+  assert.equal((await next('en', 'mathematics', null, [])).pageid, 1);
+  assert.equal((await next('en', 'mathematics', null, [])).pageid, 2);
 });
 
 test('failed loads can be retried without exposing cards from another topic', async () => {

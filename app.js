@@ -4,7 +4,8 @@ let current = null;
 let busy = false;
 const storageKey = 'zidni.v1';
 const nextDiscoveryPage = createDiscoveryQueue(discoverPages);
-let state = { history: [], saved: [], daily: {}, language: 'en', topic: 'all' };
+const RECENT_ARTICLE_LIMIT = 1000;
+let state = { history: [], recent: [], saved: [], daily: {}, language: 'en', topic: 'all' };
 try {
   const stored = JSON.parse(localStorage.getItem(storageKey));
   if (LANGUAGES[stored?.language]) state.language = stored.language;
@@ -15,6 +16,10 @@ try {
   for (const name of ['history', 'saved']) {
     if (Array.isArray(stored?.[name])) state[name] = stored[name].filter(validArticle).slice(0, name === 'history' ? 60 : 500);
   }
+  // Migrate existing visits and retain only compact IDs for the longer memory.
+  const recent = Array.isArray(stored?.recent) ? stored.recent.filter((key) =>
+    typeof key === 'string' && /^(en|fr|ar|ary):[1-9]\d*$/.test(key)) : [];
+  state.recent = [...recentArticleKeys(state.history, recent)].slice(0, RECENT_ARTICLE_LIMIT);
 } catch { /* Start with an empty notebook if storage is unavailable. */ }
 
 function validArticle(article) {
@@ -118,13 +123,14 @@ async function discover() {
   const timeout = setTimeout(() => controller.abort(), 25000);
 
   try {
-    const page = await nextDiscoveryPage(language, topic, controller.signal, state.history);
+    const page = await nextDiscoveryPage(language, topic, controller.signal, state.history, state.recent);
     const article = {
       id: page.pageid, lang: language, topic, title: page.title, extract: page.extract || '',
       url: `https://${language}.wikipedia.org/?curid=${page.pageid}`, image: page.thumbnail?.source || '',
       imageWidth: page.thumbnail?.width, imageHeight: page.thumbnail?.height
     };
     state.history = [article, ...state.history.filter((item) => articleKey(item) !== articleKey(article))].slice(0, 60);
+    state.recent = [articleKey(article), ...state.recent.filter((key) => key !== articleKey(article))].slice(0, RECENT_ARTICLE_LIMIT);
     countDiscovery(article);
     persist();
     showArticle(article);

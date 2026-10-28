@@ -22,14 +22,24 @@ function isUpwardSwipe(start, end) {
 function createDiscoveryQueue(loadPages) {
   let key = '';
   let pages = [];
-  return async function nextPage(language, topic, signal, history) {
+  return async function nextPage(language, topic, signal, history, recent = []) {
     const nextKey = `${language}:${topic}`;
     if (nextKey !== key) { key = nextKey; pages = []; }
-    if (!pages.length) pages = [...await loadPages(language, topic, signal)];
-    const unseen = pages.filter((page) => !history.some((item) => item.lang === language && item.id === page.pageid));
-    const pool = unseen.length ? unseen : pages;
-    const page = pool.find((item) => item.extract?.length > 100) || pool[0];
-    if (!page) throw new Error('No article found');
+    const seen = recentArticleKeys(history, recent);
+    const unseen = (items) => items.filter((page) => !seen.has(`${language}:${page.pageid}`));
+    pages = unseen(pages);
+    // Discard exhausted batches instead of recycling recently displayed pages.
+    // Keep retries bounded, including for the unrestricted random generator.
+    for (let attempt = 0; !pages.length && attempt < 3; attempt++) {
+      try { pages = unseen(await loadPages(language, topic, signal)); }
+      catch (error) { if (error.name !== 'TopicUnavailableError') throw error; }
+    }
+    const page = pages[0];
+    if (!page) {
+      const error = new Error('No unseen article found');
+      error.name = 'TopicUnavailableError';
+      throw error;
+    }
     pages = pages.filter((item) => item.pageid !== page.pageid);
     return page;
   };
