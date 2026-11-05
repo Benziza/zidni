@@ -11,20 +11,29 @@ const TOPICS = [
   ['medicine', 'Medicine', 'Médecine', 'الطب', 'الطب'],
   ['technology', 'Technology', 'Technologie', 'التكنولوجيا', 'التكنولوجيا'],
   ['computing', 'Computing', 'Informatique', 'الحوسبة', 'المعلوميات'],
+  ['transport', 'Transport & mobility', 'Transport et mobilité', 'النقل والتنقل', 'الطرونسپور والتنقل', 'Transport'],
   ['history', 'History', 'Histoire', 'التاريخ', 'التاريخ'],
   ['geography', 'Geography', 'Géographie', 'الجغرافيا', 'الجغرافيا'],
   ['art', 'Art', 'Art', 'الفن', 'الفن', 'Art', { fr: 'Catégorie:Art' }],
+  ['architecture', 'Architecture & design', 'Architecture et design', 'العمارة والتصميم', 'المعمار والديزاين', ['Architecture', 'Design']],
+  ['cinema', 'Film & television', 'Cinéma et télévision', 'السينما والتلفزيون', 'السينيما والتلفازة', ['Film', 'Television']],
   ['music', 'Music', 'Musique', 'الموسيقى', 'الموسيقى'],
   ['literature', 'Literature', 'Littérature', 'الأدب', 'الأدب'],
+  ['languages', 'Languages & linguistics', 'Langues et linguistique', 'اللغات واللسانيات', 'اللوغات واللانڭويستيك', ['Language', 'Linguistics']],
   ['philosophy', 'Philosophy', 'Philosophie', 'الفلسفة', 'الفلسفة'],
   ['psychology', 'Psychology', 'Psychologie', 'علم النفس', 'علم النفس'],
+  ['sociology', 'Sociology & anthropology', 'Sociologie et anthropologie', 'علم الاجتماع وعلم الإنسان', 'الصوسيولوجيا والأنطروپولوجيا', ['Sociology', 'Anthropology']],
   ['society', 'Society', 'Société', 'المجتمع', 'المجتمع'],
+  ['politics', 'Politics & international relations', 'Politique et relations internationales', 'السياسة والعلاقات الدولية', 'السياسة والعلاقات الدولية', 'Politics'],
+  ['law', 'Law & justice', 'Droit et justice', 'القانون والعدالة', 'القانون والعدالة', 'Law'],
+  ['religion', 'Religions & beliefs', 'Religions et croyances', 'الأديان والمعتقدات', 'الأديان والمعتقدات', 'Religion'],
+  ['education', 'Education & pedagogy', 'Éducation et pédagogie', 'التعليم وعلوم التربية', 'التعليم وطرق التدريس', 'Education'],
   ['economy', 'Economy', 'Économie', 'الاقتصاد', 'الاقتصاد', 'Economics'],
   ['nature', 'Nature & environment', 'Nature et environnement', 'الطبيعة والبيئة', 'الطبيعة والبيئة', 'Natural environment'],
   ['sports', 'Sports', 'Sport', 'الرياضة', 'الرياضة'],
   ['food', 'Food and drink', 'Cuisine et boissons', 'الطعام والشراب', 'الماكلة والشرب']
 ].map(([id, en, fr, ar, ary, category = en, categoryOverrides = {}]) => ({
-  id, category: `Category:${category}`, categoryOverrides, labels: { en, fr, ar, ary }
+  id, categories: [category].flat().map((title) => `Category:${title}`), categoryOverrides, labels: { en, fr, ar, ary }
 }));
 
 function topicLabel(id, language) {
@@ -62,19 +71,20 @@ function topicUnavailable() {
 
 const categoryTitles = new Map();
 const categoryMembers = new Map();
-async function resolveTopicCategory(topic, language, signal) {
+async function resolveTopicCategories(topic, language, signal) {
   // Some equivalent categories exist without a Wikipedia interlanguage link.
-  if (topic.categoryOverrides[language]) return topic.categoryOverrides[language];
-  if (language === 'en') return topic.category;
+  if (topic.categoryOverrides[language]) return [topic.categoryOverrides[language]].flat();
+  if (language === 'en') return topic.categories;
   const key = `${language}:${topic.id}`;
   if (categoryTitles.has(key)) return categoryTitles.get(key);
   const data = await wikipediaQuery('en', {
-    prop: 'langlinks', titles: topic.category, redirects: '1', lllang: language, lllimit: '1'
+    prop: 'langlinks', titles: topic.categories.join('|'), redirects: '1', lllang: language, lllimit: String(topic.categories.length)
   }, signal);
-  const title = data.query?.pages?.[0]?.langlinks?.[0]?.title;
-  if (!title) throw topicUnavailable();
-  categoryTitles.set(key, title);
-  return title;
+  const titles = [...new Set((data.query?.pages || []).flatMap((page) =>
+    (page.langlinks || []).map((link) => link.title)))];
+  if (!titles.length) throw topicUnavailable();
+  categoryTitles.set(key, titles);
+  return titles;
 }
 
 function shuffled(items) {
@@ -124,9 +134,9 @@ async function discoverPages(language, topicId, signal) {
   }
   const topic = TOPICS.find((item) => item.id === topicId);
   if (!topic) throw topicUnavailable();
-  const root = await resolveTopicCategory(topic, language, signal);
+  const roots = await resolveTopicCategories(topic, language, signal);
   const seen = recentArticleKeys(state.history, state.recent);
-  const branches = [{ title: root, depth: 0, branch: root }];
+  const branches = shuffled(roots).map((title) => ({ title, depth: 0, branch: title }));
   const visited = new Set();
   const candidateIds = new Set();
   const groups = new Map();
