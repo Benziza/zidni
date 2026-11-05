@@ -45,6 +45,67 @@ test('localized topics use the category language link and preserve the abort sig
   assert.ok(calls.every((call) => !call.params.has('generator')));
 });
 
+test('combined topics mix articles from both category roots', async () => {
+  const { discover, calls } = harness(({ params }) => {
+    if (params.get('list')) return { query: { categorymembers:
+      (params.get('cmtitle') === 'Category:Film' ? [1, 2] : [3, 4])
+        .map((pageid) => ({ ns: 0, pageid }))
+    } };
+    return { query: { pages: params.get('pageids').split('|').map((id) => article(Number(id))) } };
+  });
+  assert.deepEqual(Array.from(await discover('en', 'cinema'), (page) => page.pageid), [1, 3, 2, 4]);
+  assert.deepEqual(calls.filter((call) => call.params.get('list')).map((call) => call.params.get('cmtitle')),
+    ['Category:Film', 'Category:Television']);
+});
+
+test('combined topics resolve all localized roots in one request and cache them', async () => {
+  const { discover, calls } = harness(({ params }) => {
+    if (params.get('prop') === 'langlinks') return { query: { pages: [
+      { langlinks: [{ title: 'Catégorie:Cinéma' }] },
+      { langlinks: [{ title: 'Catégorie:Télévision' }] }
+    ] } };
+    if (params.get('list')) return { query: { categorymembers: [
+      { ns: 0, pageid: params.get('cmtitle') === 'Catégorie:Cinéma' ? 1 : 2 }
+    ] } };
+    return { query: { pages: [article(1), article(2)] } };
+  });
+  for (let visit = 0; visit < 2; visit++) {
+    assert.deepEqual(Array.from(await discover('fr', 'cinema'), (page) => page.pageid), [1, 2]);
+  }
+  const resolutions = calls.filter((call) => call.params.get('prop') === 'langlinks');
+  assert.equal(resolutions.length, 1);
+  assert.equal(resolutions[0].params.get('titles'), 'Category:Film|Category:Television');
+  assert.equal(resolutions[0].params.get('lllimit'), '2');
+  assert.equal(resolutions[0].params.get('lllang'), 'fr');
+  assert.equal(calls.filter((call) => call.params.get('list')).length, 2);
+});
+
+test('combined topics use available language links and deduplicate equivalent roots', async () => {
+  const localizedRoot = { langlinks: [{ title: 'تصنيف:أنطروپولوجيا' }] };
+  for (const pages of [[{}, localizedRoot], [localizedRoot, localizedRoot]]) {
+    const { discover, calls } = harness(({ params }) => {
+      if (params.get('prop') === 'langlinks') return { query: { pages } };
+      if (params.get('list')) return { query: { categorymembers: [{ ns: 0, pageid: 42 }] } };
+      return { query: { pages: [article(42)] } };
+    });
+    assert.equal((await discover('ary', 'sociology'))[0].pageid, 42);
+    assert.equal(calls.filter((call) => call.params.get('list')).length, 1);
+    assert.equal(calls[1].params.get('cmtitle'), 'تصنيف:أنطروپولوجيا');
+    assert.ok(calls.every((call) => !call.params.has('generator')));
+  }
+});
+
+test('explicit localized category overrides still bypass language-link resolution', async () => {
+  const { discover, calls } = harness(({ params }) => {
+    if (params.get('list')) return { query: { categorymembers: [{ ns: 0, pageid: 42 }] } };
+    return { query: { pages: [article(42)] } };
+  });
+  assert.equal((await discover('fr', 'art'))[0].pageid, 42);
+  assert.equal(calls[0].language, 'fr');
+  assert.equal(calls[0].params.get('cmtitle'), 'Catégorie:Art');
+  assert.ok(calls.every((call) => call.params.get('prop') !== 'langlinks'));
+});
+
 test('walks into subcategories and excludes seen article IDs', async () => {
   const { discover, calls } = harness(({ params }) => {
     if (params.get('list')) return { query: { categorymembers: params.get('cmtitle') === 'Category:Astronomy'
@@ -161,9 +222,9 @@ test('API errors and aborts propagate instead of being treated as an empty topic
   await assert.rejects(aborted.discover('en', 'all'), { name: 'AbortError' });
 });
 
-test('offers 21 unique topics with labels for all four languages', () => {
+test('offers 30 unique topics with labels for all four languages', () => {
   const { context } = harness(() => ({}));
-  assert.equal(vm.runInContext('TOPICS.length', context), 21);
-  assert.equal(vm.runInContext('new Set(TOPICS.map(topic => topic.id)).size', context), 21);
+  assert.equal(vm.runInContext('TOPICS.length', context), 30);
+  assert.equal(vm.runInContext('new Set(TOPICS.map(topic => topic.id)).size', context), 30);
   assert.ok(vm.runInContext("TOPICS.every(topic => ['en','fr','ar','ary'].every(lang => topic.labels[lang]))", context));
 });
