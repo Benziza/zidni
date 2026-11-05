@@ -29,6 +29,10 @@ function applyLanguage() {
   }
   document.querySelector('.brand').setAttribute('aria-label', t('home'));
   document.querySelector('nav').setAttribute('aria-label', t('nav'));
+  $('theme-toggle').setAttribute('aria-label', t('darkMode'));
+  $('theme-toggle').dataset.lightLabel = t('switchToLight');
+  $('theme-toggle').dataset.darkLabel = t('switchToDark');
+  renderThemeToggle();
   $('notebook-search').placeholder = t('searchPlaceholder');
   $('notebook-search').setAttribute('aria-label', t('searchLabel'));
   if (!$('error').hidden) $('error').textContent = t($('error').dataset.kind || 'offline');

@@ -10,6 +10,8 @@ Topic discoveries mix articles from several category branches when available. Th
 
 Discover one article card at a time. Swipe upward, press the up arrow while the card is focused, or use the next button to discover another page. Save a card to your notebook or choose Read more to open the full article on Wikipedia.
 
+Use the sun/moon button in the header to switch between light and dark mode. Zidni follows your device's color scheme until you choose a mode, then remembers your choice in this browser.
+
 [Open Zidni](https://benziza.github.io/zidni/)
 
 To run locally with Node.js 20 or later:
