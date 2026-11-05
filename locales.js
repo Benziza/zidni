@@ -3,6 +3,9 @@
 const LANGUAGES = { en: 'English', fr: 'Français', ar: 'العربية', ary: 'الدارجة' };
 const TEXTS = {
   "en": {
+    "darkMode": "Dark mode",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode",
     "quickMode": "Quick discovery",
     "quickEyebrow": "LET CURIOSITY LEAD",
     "quickTitleA": "A little swipe.",
@@ -73,6 +76,9 @@ const TEXTS = {
     "removePage": "Remove {title} from my notebook"
   },
   "fr": {
+    "darkMode": "Mode sombre",
+    "switchToLight": "Passer au mode clair",
+    "switchToDark": "Passer au mode sombre",
     "quickMode": "Découverte rapide",
     "quickEyebrow": "LAISSE PARLER TA CURIOSITÉ",
     "quickTitleA": "Un petit geste.",
@@ -143,6 +149,9 @@ const TEXTS = {
     "removePage": "Retirer {title} du carnet"
   },
   "ar": {
+    "darkMode": "الوضع الداكن",
+    "switchToLight": "التبديل إلى الوضع الفاتح",
+    "switchToDark": "التبديل إلى الوضع الداكن",
     "quickMode": "اكتشاف سريع",
     "quickEyebrow": "دع الفضول يقودك",
     "quickTitleA": "حركة بسيطة،",
@@ -213,6 +222,9 @@ const TEXTS = {
     "removePage": "أزل {title} من دفتري"
   },
   "ary": {
+    "darkMode": "الوضع الغامق",
+    "switchToLight": "بدّل للوضع الفاتح",
+    "switchToDark": "بدّل للوضع الغامق",
     "quickMode": "اكتشاف سريع",
     "quickEyebrow": "خلي الفضول يدّيك",
     "quickTitleA": "حركة صغيرة،",
