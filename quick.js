@@ -72,6 +72,7 @@ function renderQuickSave() {
 }
 
 function setQuickBusy(loading) {
+  document.querySelectorAll('[data-topic-shortcut]').forEach(button => { button.disabled = loading; });
   $('quick-card').setAttribute('aria-busy', String(loading));
   $('quick-loading').hidden = !loading;
   $('quick-next').disabled = loading;
@@ -85,7 +86,7 @@ function renderQuickArticle(article) {
   $('quick-content').hidden = !article;
   if (!article) return;
   $('quick-topic').textContent = topicLabel(article.topic, state.language) || t('quickAllTopics');
-  $('quick-language').textContent = 'Wikipedia · ' + LANGUAGES[article.lang];
+  $('quick-language').textContent = 'Wikipedia / ' + LANGUAGES[article.lang];
   $('quick-time').textContent = t('excerpt', { count: Math.max(1, Math.ceil(article.extract.split(/\s+/).length / 200)) });
   $('quick-article-title').textContent = article.title;
   $('quick-extract').textContent = quickExcerpt(article.extract) || t('noExtract');
@@ -150,7 +151,8 @@ function initQuickDiscovery() {
     card.style.removeProperty('opacity');
   }
   card.addEventListener('pointerdown', (event) => {
-    if (busy || !current || !event.isPrimary || event.button !== 0 || event.target.closest('button,a,input,select')) return;
+    // Keep the reading area available for normal vertical scrolling on touchscreens.
+    if (busy || !current || !event.isPrimary || event.button !== 0 || !event.target.closest('.quick-visual')) return;
     gesture = { x: event.clientX, y: event.clientY, time: event.timeStamp, pointer: event.pointerId };
     card.setPointerCapture(event.pointerId);
   });

@@ -19,7 +19,7 @@ function renderThemeToggle() {
 
   function applyTheme(theme) {
     document.documentElement.dataset.theme = theme;
-    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#171e1a' : '#eeeae2';
+    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#101318' : '#f7f6f2';
     renderThemeToggle();
   }
 

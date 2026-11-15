@@ -52,6 +52,15 @@ function renderTopics() {
     return option;
   }));
   $('topic').value = state.topic;
+  const shortcuts = document.querySelector('.topic-shortcuts');
+  if (shortcuts) {
+    shortcuts.setAttribute('aria-label', t('topic'));
+    shortcuts.querySelectorAll('[data-topic-shortcut]').forEach(button => {
+      const id = button.dataset.topicShortcut;
+      button.textContent = id === 'all' ? t('allTopics') : topicLabel(id, state.language);
+      button.setAttribute('aria-pressed', String(id === state.topic));
+    });
+  }
 }
 
 async function wikipediaQuery(language, parameters, signal) {

@@ -11,6 +11,8 @@ const port = Number(process.env.PORT) || 4173;
 const files = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
+  '/redesign.css': ['redesign.css', 'text/css; charset=utf-8'],
+  '/fonts.css': ['fonts.css', 'text/css; charset=utf-8'],
   '/theme.js': ['theme.js', 'text/javascript; charset=utf-8'],
   '/locales.js': ['locales.js', 'text/javascript; charset=utf-8'],
   '/language.js': ['language.js', 'text/javascript; charset=utf-8'],
@@ -46,7 +48,14 @@ const server = http.createServer(async (request, response) => {
   if (pathname === '/index.html') {
     response.writeHead(301, { Location: '/' }); response.end(); return;
   }
-  const file = files[pathname];
+  let file = files[pathname];
+  // Only static design assets are available beyond the explicit app routes.
+  const asset = pathname.match(/^\/assets\/([a-zA-Z0-9_./-]+)$/);
+  if (!file && asset) {
+    const resolved = path.resolve(__dirname, 'assets', asset[1]);
+    const mime = { '.ttf': 'font/ttf', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' }[path.extname(resolved)];
+    if (mime && resolved.startsWith(path.join(__dirname, 'assets') + path.sep)) file = [path.relative(__dirname, resolved), mime];
+  }
 
   if (!file) {
     response.writeHead(404);

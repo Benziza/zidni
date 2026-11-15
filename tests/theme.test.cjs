@@ -44,7 +44,7 @@ test('applies the system theme before the body exists and initializes the toggle
   for (const dark of [false, true]) {
     const app = harness({ dark });
     assert.equal(app.root.dataset.theme, dark ? 'dark' : 'light');
-    assert.equal(app.meta.content, dark ? '#171e1a' : '#eeeae2');
+    assert.equal(app.meta.content, dark ? '#101318' : '#f7f6f2');
     app.mount();
     assert.equal(app.button.attributes['aria-pressed'], String(dark));
     assert.equal(app.button.title, dark ? 'Switch to light mode' : 'Switch to dark mode');
@@ -61,14 +61,14 @@ test('switching themes survives reload without changing the notebook', () => {
   app.mount();
   app.click();
   assert.equal(app.root.dataset.theme, 'dark');
-  assert.equal(app.meta.content, '#171e1a');
+  assert.equal(app.meta.content, '#101318');
   assert.equal(app.button.attributes['aria-pressed'], 'true');
   assert.equal(app.storage.get('zidni.theme'), 'dark');
   assert.equal(app.storage.get('zidni.v1'), 'existing notebook');
   assert.equal(harness({ stored: app.storage.get('zidni.theme') }).root.dataset.theme, 'dark');
   app.click();
   assert.equal(app.root.dataset.theme, 'light');
-  assert.equal(app.meta.content, '#eeeae2');
+  assert.equal(app.meta.content, '#f7f6f2');
   assert.equal(app.button.attributes['aria-pressed'], 'false');
   assert.equal(app.storage.get('zidni.theme'), 'light');
 });

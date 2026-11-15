@@ -152,12 +152,19 @@ async function discover() {
 $('topic').addEventListener('change', () => {
   if (busy) return;
   state.topic = $('topic').value;
+  renderTopics();
   $('error').hidden = true;
   persist();
   notify(t('nextTopic', { topic: state.topic === 'all' ? t('allTopics') : topicLabel(state.topic, state.language) }));
   discover();
 });
 $('nav-explore').addEventListener('click', () => showView(false));
+document.querySelector('.topic-shortcuts')?.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-topic-shortcut]');
+  if (!button || busy) return;
+  $('topic').value = button.dataset.topicShortcut;
+  $('topic').dispatchEvent(new Event('change', { bubbles: true }));
+});
 $('nav-saved').addEventListener('click', () => showView(true));
 $('notebook-search').addEventListener('input', renderNotebook);
 $('export-notebook').addEventListener('click', exportNotebook);
