@@ -17,7 +17,7 @@ function applyLanguage() {
     document.querySelector(`.questions details:nth-child(${i}) p`).textContent = t('a' + i);
   }
   const bindings = {
-    'header>span': 'tagline', '#nav-explore': 'explore', '#saved-label': 'saved',
+    'header>span': 'tagline', '#nav-explore-label': 'explore', '#saved-label': 'saved',
     '#saved-view>.eyebrow': 'savedEyebrow', '#saved-view>h1': 'saved',
     '#saved-view>p:not(.eyebrow)': 'collectionDescription', '#export-notebook': 'export',
     '.skip-link': 'skip', '.how-it-works .eyebrow': 'howEyebrow', '#how-title': 'howTitle',
